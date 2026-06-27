@@ -2,6 +2,8 @@
 
 import { FormEvent, useState } from "react";
 
+const APIURL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+
 interface ContactFormProps {
   variant?: "full" | "minimal";
 }
@@ -10,6 +12,7 @@ export default function ContactForm({ variant = "full" }: ContactFormProps) {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    title: "",
     message: "",
   });
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
@@ -20,7 +23,7 @@ export default function ContactForm({ variant = "full" }: ContactFormProps) {
     setStatus("loading");
 
     try {
-      const response = await fetch("https://formspree.io/f/xyzabc123", {
+      const response = await fetch(APIURL + "/handle/contact", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -28,16 +31,22 @@ export default function ContactForm({ variant = "full" }: ContactFormProps) {
         body: JSON.stringify({
           name: formData.name,
           email: formData.email,
+          title: formData.title || `New Contact from ${formData.name}`,
           message: formData.message,
-          _subject: `New Contact from ${formData.name}`,
         }),
       });
+
+      const responseData = await response.json().catch(() => ({}));
 
       if (response.ok) {
         setStatus("success");
         setStatusMessage("Message sent successfully! I'll get back to you soon.");
-        setFormData({ name: "", email: "", message: "" });
+        setFormData({ name: "", email: "", title: "", message: "" });
         setTimeout(() => setStatus("idle"), 5000);
+      } else if (response.status === 429) {
+        setStatus("error");
+        setStatusMessage(responseData.message || "You have recently sent a message. Please wait for one minute.");
+        alert("You have recently sent a message. Please wait for one minute.");
       } else {
         setStatus("error");
         setStatusMessage("Failed to send message. Please try again.");
@@ -56,6 +65,15 @@ export default function ContactForm({ variant = "full" }: ContactFormProps) {
           placeholder="your.email@example.com"
           value={formData.email}
           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+          required
+          disabled={status === "loading"}
+          className="w-full bg-[var(--surface-elevated)] border-b-2 border-[var(--border-strong)] focus:border-[var(--brand)] border-t-0 border-x-0 px-4 py-3 outline-none transition-colors text-[var(--text-main)] placeholder:text-[var(--text-muted)]"
+        />
+        <input
+          type="text"
+          placeholder="Subject / Title"
+          value={formData.title}
+          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
           required
           disabled={status === "loading"}
           className="w-full bg-[var(--surface-elevated)] border-b-2 border-[var(--border-strong)] focus:border-[var(--brand)] border-t-0 border-x-0 px-4 py-3 outline-none transition-colors text-[var(--text-main)] placeholder:text-[var(--text-muted)]"
@@ -111,13 +129,22 @@ export default function ContactForm({ variant = "full" }: ContactFormProps) {
           className="bg-[var(--surface-elevated)] border-b-2 border-[var(--border-strong)] focus:border-[var(--brand)] border-t-0 border-x-0 px-4 py-3 outline-none transition-colors text-[var(--text-main)] placeholder:text-[var(--text-muted)]"
         />
       </div>
+      <input
+        type="text"
+        placeholder="Subject Title"
+        value={formData.title}
+        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+        required
+        disabled={status === "loading"}
+        className="w-full bg-[var(--surface-elevated)] border-b-2 border-[var(--border-strong)] focus:border-[var(--brand)] border-t-0 border-x-0 px-4 py-3 outline-none transition-colors text-[var(--text-main)] placeholder:text-[var(--text-muted)]"
+      />
       <textarea
         placeholder="Your message..."
         value={formData.message}
         onChange={(e) => setFormData({ ...formData, message: e.target.value })}
         required
         disabled={status === "loading"}
-        className="w-full bg-[var(--surface-elevated)] border border-[var(--border)] px-4 py-3 outline-none focus:border-[var(--brand)] transition-colors text-[var(--text-main)] placeholder:text-[var(--text-muted)] rounded-md resize-none"
+        className="w-full bg-[var(--surface-elevated)] border border-[var(--border)] px-4 py-3 outline-none focus:border-[var(--brand)] transition-colors text-[var(--text-main)] placeholder:text-[var(--text-muted)] rounded-md resize-none mt-4"
         rows={6}
       />
       <button

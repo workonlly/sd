@@ -7,17 +7,9 @@ export default function Portfolio() {
   return (
     <div className="page-shell selection:bg-[#ffdbca] selection:text-[#331200] bg-[var(--background)] text-[var(--foreground)] min-h-screen">
       
-      {/* Inject Fonts and Icons directly for single-file independence */}
+      
+      {/* Custom animations for smooth entry and interactions */}
       <style dangerouslySetInnerHTML={{__html: `
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
-        
-        body { font-family: 'Inter', sans-serif; }
-        
-        .material-symbols-outlined {
-          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-
         /* Custom animations for smooth entry and interactions */
         @keyframes fade-in-up {
           0% { opacity: 0; transform: translateY(20px); }
@@ -227,8 +219,8 @@ export default function Portfolio() {
               <div className="animate-fade-in-up stagger-3 grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl mb-10">
                 <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)]/80 px-4 py-3 hover-glow-card shimmer-on-hover">
                   <p className="text-xs tracking-[0.12em] uppercase text-[var(--text-muted)] font-semibold mb-1">Education</p>
-                  <p className="text-sm rounded-sm bg-white m-1 p-1 text-[var(--text-main)] font-semibold">Master of Public Affairs, Brown University</p>
-                  <p className="text-sm rounded-sm bg-white m-1 p-1 text-[var(--text-main)] font-semibold">B.S. International Business, University of Maryland</p>
+                  <p className="text-sm rounded-sm bg-white m-1 p-1 text-black font-semibold">Master of Public Affairs, Brown University</p>
+                  <p className="text-sm rounded-sm bg-white m-1 p-1 text-black font-semibold">B.S. International Business, University of Maryland</p>
                 </div>
                 <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)]/80 px-4 py-3 hover-glow-card shimmer-on-hover">
                   <p className="text-xs tracking-[0.12em] uppercase text-[var(--text-muted)] font-semibold mb-2">Professional Credentials</p>

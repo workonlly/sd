@@ -39,6 +39,9 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} h-full antialiased`}
       suppressHydrationWarning
     >
+      <head>
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+      </head>
       <body className="min-h-full flex flex-col pt-2 relative"> {/* Added pt-24 to prevent header overlap with content */}
         <AmbientGlow />
         
@@ -86,7 +89,7 @@ export default function RootLayout({
                 <span className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></span>
                 <span className="relative z-10">Archive Login</span>
                 <span className="material-symbols-outlined text-[1.1rem] relative z-10 group-hover:translate-x-1 transition-transform duration-300">
-                  arrow_forward
+                  chevron_right
                 </span>
               </Link>
             </div>

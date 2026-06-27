@@ -1,8 +1,103 @@
 'use client';
 
 import Link from 'next/link';
+import { createClient } from '@supabase/supabase-js';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default function ArchiveLogin() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  useEffect(() => {
+    // Listen for OAuth redirect return
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session?.access_token) {
+        setLoading(true);
+        try {
+          const res = await fetch(`${API_URL}/auth/oauth-login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ access_token: session.access_token })
+          });
+          
+          if (res.ok) {
+            const data = await res.json();
+            // Store the signed JWT
+            localStorage.setItem('token', data.token);
+            // Redirect to canvas
+            router.push('/canvas');
+          } else {
+            const errorData = await res.json().catch(() => ({}));
+            alert(errorData.message || "Access Denied. You must request access first.");
+            // Immediately sign out from Supabase to prevent them from being stuck logged in
+            await supabase.auth.signOut();
+            setLoading(false);
+          }
+        } catch (err) {
+          console.error("Failed to sync oauth session", err);
+          alert("A network error occurred. Please try again.");
+          await supabase.auth.signOut();
+          setLoading(false);
+        }
+      }
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, [router]);
+
+  const handleGoogleLogin = async () => {
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin + '/archieve_login'
+        }
+      });
+      if (error) throw error;
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
+    }
+  };
+
+  const handleEmailLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        localStorage.setItem('token', data.token);
+        router.push('/canvas');
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        alert(errorData.message || "Invalid email or password");
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("A network error occurred. Please try again.");
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="page-shell bg-[var(--background)] font-['Inter'] text-[var(--foreground)] antialiased min-h-screen">
       
@@ -31,7 +126,7 @@ export default function ArchiveLogin() {
           <div className="bg-[var(--surface-elevated)] shadow-[0_10px_40px_-10px_rgba(24,32,52,0.06)] rounded-xl p-8 md:p-12 relative">
             <div className="absolute top-0 left-0 w-full h-1 bg-[#3b1600] rounded-t-xl"></div>
             
-            <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
+            <form className="space-y-8" onSubmit={handleEmailLogin}>
               <div className="space-y-1">
                 <label className="block text-[0.6875rem] font-['Inter'] font-bold uppercase tracking-wider text-[var(--text-muted)]" htmlFor="email">
                   Email Address
@@ -42,6 +137,10 @@ export default function ArchiveLogin() {
                   name="email" 
                   placeholder="lineage@archive.net" 
                   type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={loading}
+                  required
                 />
               </div>
               
@@ -55,24 +154,44 @@ export default function ArchiveLogin() {
                   name="password" 
                   placeholder="••••••••" 
                   type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={loading}
+                  required
                 />
               </div>
               
-              <div className="pt-4">
+              <div className="pt-4 flex flex-col gap-3">
                 <button 
                   className="w-full btn-primary py-4 px-6 font-['Inter'] text-sm tracking-tight active:scale-[0.98] flex items-center justify-center gap-2 group" 
                   type="submit"
+                  disabled={loading}
                 >
-                  Login
-                  <span className="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                  {loading ? 'Authenticating...' : 'Login'}
+                  {!loading && <span className="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>}
+                </button>
+
+                <button 
+                  type="button"
+                  onClick={handleGoogleLogin}
+                  disabled={loading}
+                  className="w-full bg-[var(--surface)] text-[var(--text-main)] py-4 px-6 font-['Inter'] text-sm tracking-tight active:scale-[0.98] flex items-center justify-center gap-3 rounded-xl hover:bg-[var(--surface-elevated)] transition-colors border border-[var(--border-strong)]" 
+                >
+                  <img src="https://www.google.com/favicon.ico" alt="Google" className="w-4 h-4" />
+                  {loading ? 'Redirecting...' : ' Google'}
                 </button>
               </div>
             </form>
             
-            <div className="mt-10 pt-8 border-t border-[var(--border)]/10 flex flex-col items-center gap-4">
-              <Link className="text-[0.6875rem] font-['Inter'] font-bold uppercase tracking-widest text-[#f0813a] hover:text-[#3b1600] transition-colors" href="#">
+            <div className="mt-10  border-t border-[var(--border)]/10 flex flex-col items-center gap-4">
+              <Link className="text-[0.6875rem] font-['Inter'] font-bold uppercase tracking-widest text-[#f0813a] hover:text-[#3b1600] transition-colors" href="/requestform">
                 Request Access
               </Link>
+              
+              <Link className="text-[0.6875rem] font-['Inter'] font-bold uppercase tracking-widest text-[#f0813a] hover:text-[#3b1600] transition-colors" href="/canvas/guest">
+                Guest Login
+              </Link>
+              
               <div className="flex items-center gap-2 opacity-40">
                 <span className="h-px w-8 bg-[#74777f]"></span>
                 <span className="material-symbols-outlined text-[10px]">shield</span>
