@@ -20,8 +20,9 @@ function AvatarSVG({ isFemale, colorClass }: { isFemale: boolean; colorClass: st
     );
 }
 
-function PersonPortrait({ personId, isFemale, avatarBgClass, colorClass }: {
+function PersonPortrait({ personId, googleurl, isFemale, avatarBgClass, colorClass }: {
     personId: string;
+    googleurl?: string | null;
     isFemale: boolean;
     avatarBgClass: string;
     colorClass: string;
@@ -30,12 +31,20 @@ function PersonPortrait({ personId, isFemale, avatarBgClass, colorClass }: {
     const [src, setSrc] = useState<string | null>(null);
 
     useEffect(() => {
+        if (googleurl) {
+            const idMatch = googleurl.includes('id=') ? new URL(googleurl).searchParams.get('id') : googleurl.split('d/')[1]?.split('/')[0];
+            if (idMatch) {
+                setSrc(`https://drive.google.com/thumbnail?id=${idMatch}&sz=w200-h200`);
+                return;
+            }
+        }
+        
         const conn = (navigator as any).connection;
         const isSlow = conn && (conn.effectiveType === '2g' || conn.effectiveType === 'slow-2g');
         if (!isSlow && personId) {
             setSrc(`${API_URL}/images/${personId}.jpg`);
         }
-    }, [personId]);
+    }, [personId, googleurl]);
 
     if (!src || failed) {
         return (
@@ -61,7 +70,7 @@ function PersonPortrait({ personId, isFemale, avatarBgClass, colorClass }: {
 export default function PersonNode({ id, data }: { id: string; data: any }) {
     const {
         onExpand, onSelect, expandable, gender, label,
-        birthYear, isRoot, rawId, isSelected, isIsolated,
+        birthYear, isRoot, rawId, isSelected, isIsolated, googleurl
     } = data;
 
     const [isExpanding, setIsExpanding] = useState(false);
@@ -152,11 +161,12 @@ export default function PersonNode({ id, data }: { id: string; data: any }) {
             )}
 
             <div className="flex items-center gap-2.5">
-                <PersonPortrait
-                    personId={id}
-                    isFemale={isFemale}
-                    avatarBgClass={avatarBg}
-                    colorClass={colorText}
+                <PersonPortrait 
+                    personId={rawId} 
+                    googleurl={googleurl}
+                    isFemale={isFemale} 
+                    avatarBgClass={avatarBg} 
+                    colorClass={colorText} 
                 />
                 <div className="min-w-0 flex-1">
                     <div className={`font-bold text-slate-800 leading-snug overflow-hidden text-ellipsis whitespace-nowrap ${nameFontSize}`}>

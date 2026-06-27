@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import Image from 'next/image';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
-type Tab = 'personal' | 'works' | 'archives';
+type Tab = 'personal' | 'archives';
 
 interface PersonData {
     id: string;
@@ -123,27 +124,33 @@ function WorksTab({ personId }: { personId: string }) {
     );
 }
 
-function ArchivesTab({ personId }: { personId: string }) {
-    const [docs, setDocs] = useState<any[] | null>(null);
-
-    useEffect(() => {
-        setDocs(null);
-        fetch(`${API_URL}/canvas/archives?person=${personId}`)
-            .then(r => r.ok ? r.json() : [])
-            .then(setDocs)
-            .catch(() => setDocs([]));
-    }, [personId]);
-
-    if (docs === null) return <><SkeletonRow /><SkeletonRow /></>;
+function ArchivesTab({ person }: { person: PersonData }) {
+    const docs = Array.isArray(person.relativelinks) ? person.relativelinks : [];
 
     if (docs.length === 0) return <EmptyState label="No historical documents found for this individual." />;
 
     return (
         <div className="p-5 space-y-3">
-            {docs.map((doc: any, i: number) => (
+            {docs.map((docItem: any, i: number) => {
+                let parsedItem = docItem;
+                if (typeof docItem === 'string' && docItem.trim().startsWith('{')) {
+                    try {
+                        parsedItem = JSON.parse(docItem);
+                    } catch (e) {
+                        // ignore
+                    }
+                }
+                const isObject = typeof parsedItem === 'object' && parsedItem !== null;
+                const url = isObject ? parsedItem.url : parsedItem;
+                const title = isObject && parsedItem.title ? parsedItem.title : `Document ${i + 1}`;
+                const type = isObject && parsedItem.type ? parsedItem.type : null;
+                const fallbackDocName = typeof url === 'string' && url.includes('id=') ? new URL(url).searchParams.get('id') : (typeof url === 'string' ? url.split('d/')[1]?.split('/')[0] : null);
+                const displayDesc = type || fallbackDocName;
+
+                return (
                 <a
-                    key={doc.id || i}
-                    href={doc.url || '#'}
+                    key={i}
+                    href={url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 hover:border-slate-200 hover:shadow-sm transition-all group"
@@ -154,14 +161,14 @@ function ArchivesTab({ personId }: { personId: string }) {
                         </svg>
                     </div>
                     <div className="min-w-0 flex-1">
-                        <p className="text-sm font-semibold text-slate-700 truncate group-hover:text-indigo-600 transition-colors">{doc.name || doc.filename}</p>
-                        {doc.type && <p className="text-xs text-slate-400 mt-0.5">{doc.type}</p>}
+                        <p className="text-sm font-semibold text-slate-700 truncate group-hover:text-indigo-600 transition-colors">{title}</p>
+                        {displayDesc && <p className="text-xs text-slate-400 mt-0.5">{displayDesc}</p>}
                     </div>
                     <svg className="w-4 h-4 text-slate-300 group-hover:text-indigo-400 shrink-0 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                     </svg>
                 </a>
-            ))}
+            )})}
         </div>
     );
 }
@@ -217,9 +224,14 @@ export default function Sidebar({ person, onClose, onIsolateToggle, isolateActiv
 
     const tabs: { id: Tab; label: string }[] = [
         { id: 'personal', label: 'Personal' },
-        { id: 'works', label: 'Works' },
-        { id: 'archives', label: 'Archives' },
+        { id: 'archives', label: 'Archive' },
     ];
+
+    const getGoogleDriveThumbnail = (url: string) => {
+        const idMatch = url.includes('id=') ? new URL(url).searchParams.get('id') : url.split('d/')[1]?.split('/')[0];
+        return idMatch ? `https://drive.google.com/thumbnail?id=${idMatch}&sz=w200-h200` : null;
+    };
+    const thumbnailUrl = person.googleurl ? getGoogleDriveThumbnail(person.googleurl) : null;
 
     return (
         <>
@@ -233,6 +245,11 @@ export default function Sidebar({ person, onClose, onIsolateToggle, isolateActiv
                 {/* Header */}
                 <div className="px-5 mt-25 pb-4 border-b border-slate-100 shrink-0">
                     <div className="flex items-start justify-between gap-3">
+                        {thumbnailUrl && (
+                            <div className="w-14 h-14 relative rounded-full overflow-hidden shrink-0 border border-slate-200 shadow-sm mt-1">
+                                <Image src={thumbnailUrl} alt={person.label} fill className="object-cover" unoptimized sizes="56px" />
+                            </div>
+                        )}
                         <div className="min-w-0 flex-1">
                             {person.rawId && (
                                 <p className="text-[9px] font-mono text-slate-400 tracking-wider mb-1">{person.rawId}</p>
@@ -307,8 +324,7 @@ export default function Sidebar({ person, onClose, onIsolateToggle, isolateActiv
                 {/* Tab content — thin custom scrollbar via CSS class */}
                 <div className="flex-1 overflow-y-auto canvas-sidebar-scroll" role="tabpanel">
                     {activeTab === 'personal' && <PersonalTab person={person} />}
-                    {activeTab === 'works' && <WorksTab personId={person.id} />}
-                    {activeTab === 'archives' && <ArchivesTab personId={person.id} />}
+                    {activeTab === 'archives' && <ArchivesTab person={person} />}
                 </div>
             </aside>
 
