@@ -1,5 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 @import "tailwindcss";
-
 :root {
   --background: #f7f8fb;
   --foreground: #1a2238;
@@ -168,5 +169,325 @@ h3,
     animation: none !important;
     transition: none !important;
     transform: none !important;
+  }
+}
+
+/* React Flow Overrides */
+.react-flow__attribution { 
+  display: none !important; 
+}
+
+.react-flow__edge-path { 
+  transition: stroke 0.2s, stroke-width 0.2s; 
+  animation: fadeIn 0.5s ease forwards; 
+}
+
+.react-flow__edge:hover .react-flow__edge-path { 
+  stroke-width: 3px !important; 
+  stroke: #6366f1 !important; 
+}
+
+@keyframes fadeIn { 
+  from { opacity: 0; transform: scale(0.95); } 
+  to { opacity: 1; transform: scale(1); } 
+}
+
+@keyframes spin { 
+  to { transform: rotate(360deg); } 
+}
+
+/* --- Globally Extracted Animations & Utilities --- */
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  vertical-align: middle;
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+}
+
+@keyframes fade-in-up {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in-down {
+  0% { opacity: 0; transform: translateY(-20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in-left {
+  0% { opacity: 0; transform: translateX(-20px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes fade-in-right {
+  0% { opacity: 0; transform: translateX(20px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes scale-in {
+  0% { opacity: 0; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes reveal-rise {
+  0% { opacity: 0; transform: translateY(24px) scale(0.99); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes sweep-shine {
+  0% { left: -120%; }
+  100% { left: 140%; }
+}
+
+.animate-fade-in-up {
+  opacity: 0;
+  animation: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.animate-fade-in-down {
+  opacity: 0;
+  animation: fade-in-down 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.animate-fade-in-left {
+  opacity: 0;
+  animation: fade-in-left 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.animate-fade-in-right {
+  opacity: 0;
+  animation: fade-in-right 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.animate-scale-in {
+  opacity: 0;
+  animation: scale-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* Stagger animations */
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.2s; }
+.stagger-3 { animation-delay: 0.3s; }
+.stagger-4 { animation-delay: 0.4s; }
+.stagger-5 { animation-delay: 0.5s; }
+
+/* Hover scale effect */
+.hover-scale-up {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hover-scale-up:hover {
+  transform: scale(1.02);
+}
+
+/* Smooth underline animation */
+.smooth-underline {
+  position: relative;
+  text-decoration: none;
+}
+.smooth-underline::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -2px;
+  left: 0;
+  background-color: currentColor;
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.smooth-underline:hover::after {
+  width: 100%;
+}
+
+/* Enhanced button hover effects */
+.button-enhanced-hover {
+  position: relative;
+  overflow: hidden;
+}
+.button-enhanced-hover::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  transition: left 0.5s ease;
+}
+.button-enhanced-hover:hover::before {
+  left: 100%;
+}
+
+.section-reveal {
+  opacity: 0;
+  animation: reveal-rise 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.section-delay-1 { animation-delay: 0.1s; }
+.section-delay-2 { animation-delay: 0.2s; }
+.section-delay-3 { animation-delay: 0.3s; }
+
+.hover-glow-card {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hover-glow-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top right, rgba(240, 129, 58, 0.12), transparent 55%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  z-index: 1;
+}
+.hover-glow-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 36px rgba(24, 32, 52, 0.12);
+}
+.hover-glow-card:hover::before {
+  opacity: 1;
+}
+
+.shimmer-on-hover {
+  position: relative;
+  overflow: hidden;
+}
+.shimmer-on-hover::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0));
+  transform: skewX(-20deg);
+  pointer-events: none;
+  z-index: 2;
+}
+.shimmer-on-hover:hover::after {
+  animation: sweep-shine 0.65s ease-in-out;
+}
+
+.title-hover-lift {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-block;
+}
+.title-hover-lift:hover {
+  transform: translateY(-2px);
+  letter-spacing: 0.02em;
+}
+
+.icon-drift {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.icon-drift .material-symbols-outlined {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.icon-drift:hover .material-symbols-outlined {
+  transform: translateX(3px) translateY(-2px);
+}
+.icon-drift:hover {
+  transform: translateY(-1px);
+}
+
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ========================================
+   Canvas Infrastructure Styles
+   ======================================== */
+
+/* GPU hardware acceleration for all canvas nodes and edges */
+.react-flow__node {
+  will-change: transform, opacity;
+}
+
+.react-flow__edge path {
+  will-change: stroke, stroke-width;
+}
+
+/* Shimmer loading skeleton animation */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, #ede8e0 25%, #e0dbd3 50%, #ede8e0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* Canvas background — warm cream */
+.react-flow {
+  background-color: #FAF7F2;
+}
+
+/* Hyper-thin sidebar scrollbar */
+.canvas-sidebar-scroll::-webkit-scrollbar {
+  width: 3px;
+}
+.canvas-sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.canvas-sidebar-scroll::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 999px;
+}
+.canvas-sidebar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.12) transparent;
+}
+
+/* High-contrast keyboard focus ring — navy/white dual tone */
+*:focus-visible {
+  outline: 2px dashed #1e3a5f;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.85);
+}
+
+/* ReactFlow panel position overrides */
+.react-flow__controls {
+  display: none; /* Using custom CanvasControls instead */
+}
+
+/* Prefers-reduced-motion: disable all easing & animations */
+@media (prefers-reduced-motion: reduce) {
+  .react-flow__node,
+  .canvas-sidebar,
+  .canvas-animate,
+  .shimmer {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .react-flow__node {
+    opacity: 1 !important;
+  }
+}
+
+/* Print styles — clean paper-optimized layout */
+@media print {
+  .canvas-no-print,
+  .canvas-nav,
+  .canvas-sidebar,
+  .canvas-controls,
+  .canvas-minimap,
+  .react-flow__minimap,
+  .react-flow__controls,
+  .react-flow__panel,
+  .react-flow__background {
+    display: none !important;
+  }
+
+  .react-flow {
+    background: white !important;
+  }
+
+  .react-flow__node {
+    box-shadow: none !important;
   }
 }

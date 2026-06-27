@@ -8,22 +8,6 @@ export default function ArchiveDashboard() {
     <div className="page-shell bg-[var(--background)] text-[var(--foreground)] antialiased flex min-h-screen">
       
       {/* Inject Fonts and Icons directly for single-file independence */}
-      <style dangerouslySetInnerHTML={{__html: `
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
-        
-        .material-symbols-outlined {
-          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-          display: inline-block;
-          line-height: 1;
-          text-transform: none;
-          letter-spacing: normal;
-          word-wrap: normal;
-          white-space: nowrap;
-          direction: ltr;
-        }
-        body { font-family: 'Inter', sans-serif; }
-      `}} />
 
       {/* SideNavBar */}
       <aside className="bg-slate-100 dark:bg-slate-950 h-screen w-64 fixed left-0 top-0 border-r-0 flex flex-col p-6 space-y-8 z-50">
