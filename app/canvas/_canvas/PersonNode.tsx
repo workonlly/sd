@@ -76,7 +76,7 @@ function PersonPortrait({ personId, googleurl, isFemale, avatarBgClass, colorCla
 export default function PersonNode({ id, data }: { id: string; data: any }) {
      const {
            onExpand, onSelect, expandable, gender, label,
-          birthYear, isRoot, rawId, isSelected, isIsolated, googleurl
+          birthYear, isRoot, rawId, isSelected, googleurl
     } = data;
 
     const [isExpanding, setIsExpanding] = useState(false);
@@ -119,7 +119,7 @@ export default function PersonNode({ id, data }: { id: string; data: any }) {
         : '';
 
 
-       const isolatedStyle = isIsolated === false ? 'opacity-[0.12] pointer-events-none' : '';
+
   
       const displayName = label || 'Unknwn';
       const nameFontSize = displayName.length > 20 ? 'text-[10.5px]' : displayName.length > 15 ? 'text-[12px]' : 'text-[13px]';
@@ -152,7 +152,7 @@ export default function PersonNode({ id, data }: { id: string; data: any }) {
                 border-2 cursor-pointer select-none transition-all duration-200
                     hover:scale-[1.03] hover:shadow-md
                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2
-                ${bgColor} ${borderColor} ${shadowStyle} ${selectedStyle} ${isolatedStyle}
+                ${bgColor} ${borderColor} ${shadowStyle} ${selectedStyle}
               `}
             role="button"
                 tabIndex={0}

@@ -48,7 +48,7 @@ function CanvasImpl() {
     const [loadedCount, setLoadedCount] = useState(0);
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [isolateActive, setIsolateActive] = useState(false);
+
     const [expandError, setExpandError] = useState<string | null>(null);
 
     const sidebarTriggerRef = useRef<HTMLElement | null>(null);
@@ -64,7 +64,7 @@ function CanvasImpl() {
     const handleSelect = useCallback((nodeId: string) => {
         setSelectedId(nodeId);
         setSidebarOpen(true);
-         setIsolateActive(false);
+
 
          const url = new URL(window.location.href);
           url.searchParams.set('id', nodeId);
@@ -82,26 +82,7 @@ function CanvasImpl() {
     useEffect(() => { onSelectRef.current = handleSelect; }, [handleSelect]);
 
     
-    useEffect(() => {
-        if (!selectedId) return;
- 
-        setNodes(curr => curr.map(n => {
-               if (!isolateActive) {
-                    const { isIsolated, ...rest } = n.data;
-                return { ...n, data: rest };
-            }
 
-              const node = curr.find(x => x.id === selectedId);
-         
-              const relatedEdges = edges.filter(e => e.source === selectedId || e.target === selectedId);
-            const relatedIds = new Set([
-                selectedId,
-                ...relatedEdges.map(e => e.source === selectedId ? e.target : e.source),
-            ]);
-
-            return { ...n, data: { ...n.data, isIsolated: relatedIds.has(n.id) } };
-        }));
-    }, [isolateActive, selectedId, edges, setNodes]);
 
     
     useEffect(() => {
@@ -273,9 +254,7 @@ function CanvasImpl() {
             {sidebarOpen && selectedPerson && (
                  <Sidebar
                      person={selectedPerson}
-                     onClose={() => { setSidebarOpen(false); setIsolateActive(false); }}
-                      onIsolateToggle={setIsolateActive}
-                      isolateActive={isolateActive}
+                     onClose={() => { setSidebarOpen(false); }}
                    triggerRef={sidebarTriggerRef}
                 />
             )}

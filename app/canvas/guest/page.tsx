@@ -55,7 +55,7 @@ function CanvasImpl() {
    
          const [sidebarOpen, setSidebarOpen] = useState(false);
    
-         const [isolateActive, setIsolateActive] = useState(false);
+
     const [expandError, setExpandError] = useState<string | null>(null);
    
    
@@ -76,7 +76,7 @@ function CanvasImpl() {
 
           setSidebarOpen(true);
 
-          setIsolateActive(false);   
+
 
 
           const url = new URL(window.location.href);
@@ -98,34 +98,6 @@ function CanvasImpl() {
     }, [getNode, getViewport, setCenter]);
 
       useEffect(() => { onSelectRef.current = handleSelect; }, [handleSelect]);
-
-
-    
-    useEffect(() => {
-         if (!selectedId) return;
-
-    
-        setNodes(curr => curr.map(n => {
-      
-        
-            if (!isolateActive) {
-                const { isIsolated, ...rest } = n.data;
-      
-                return { ...n, data: rest };
-            }
-
-            const relatedEdges = edges.filter(e => e.source === selectedId || e.target === selectedId);
-    
-            const relatedIds = new Set([
-                selectedId,
-     
-                ...relatedEdges.map(e => e.source === selectedId ? e.target : e.source),
-            ]);
-
-
-            return { ...n, data: { ...n.data, isIsolated: relatedIds.has(n.id) } };
-        }));
-    }, [isolateActive, selectedId, edges, setNodes]);
 
     
     useEffect(() => {
@@ -168,6 +140,7 @@ function CanvasImpl() {
 
                 mergeDataIntoGraph(data, null);
 
+               
                 if (startId && data.individuals?.find((i: any) => i.id === startId)) {
                     setTimeout(() => handleSelect(startId!), 200);
                 }
@@ -189,7 +162,9 @@ function CanvasImpl() {
             <NetworkToast lazyLoadError={expandError} onDismissError={() => setExpandError(null)} />
 
             
-            <div aria-live="polite" className="sr-only" role="status">
+             
+              <div aria-live="polite" className="sr-only" role="status">
+              
                 {selectedPerson ? `Selected: ${selectedPerson.label}` : 'Family archive canvas'}
             </div>
 
@@ -200,14 +175,17 @@ function CanvasImpl() {
                     <ReactFlow
                         nodes={nodes}
                         edges={edges}
+                      
                         onNodesChange={onNodesChange}
                         onEdgesChange={onEdgesChange}
-                        nodeTypes={nodeTypes}
+                          nodeTypes={nodeTypes}
                         fitView
+                         
                         fitViewOptions={{ padding: 0.28, maxZoom: 1 }}
                         minZoom={0.05}
-                        maxZoom={2.5}
-                        proOptions={{ hideAttribution: true }}
+                            maxZoom={2.5}
+                       
+                            proOptions={{ hideAttribution: true }}
                         className="canvas-no-print"
                     >
                      
@@ -249,9 +227,7 @@ function CanvasImpl() {
                
                <Sidebar
                      person={selectedPerson}
-                     onClose={() => { setSidebarOpen(false); setIsolateActive(false); }}
-                     onIsolateToggle={setIsolateActive}
-                     isolateActive={isolateActive}
+                     onClose={() => { setSidebarOpen(false); }}
                      triggerRef={sidebarTriggerRef}
                 />
             )}
