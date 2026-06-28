@@ -206,6 +206,7 @@ function CanvasImpl() {
             try {
                 const res = await fetch(`${API_URL}/`, {
                     headers: {
+                 
                         'Authorization': `Bearer ${token}`
                     }
                 });

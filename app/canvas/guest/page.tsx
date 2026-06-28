@@ -126,9 +126,11 @@ function CanvasImpl() {
 
             if ((e.ctrlKey || e.metaKey) && e.key === '0') {
                 e.preventDefault();
+          
                 fitView({ padding: 0.25, duration: 400 });
             }
         };
+       
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [fitView]);

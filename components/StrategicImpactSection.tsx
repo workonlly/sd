@@ -17,7 +17,7 @@ export default function StrategicImpactSection() {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Project 1 */}
+          
           <div className="group relative overflow-hidden rounded-xl bg-[var(--surface-elevated)] border-t-4 border-[#3b1600] shadow-md hover:shadow-2xl hover:shadow-[#3b1600]/20 hover:-translate-y-3 transition-all duration-700 ease-out cursor-pointer flex flex-col h-full hover-scale-up animate-fade-in-left stagger-1 hover-glow-card shimmer-on-hover">
             <div className="aspect-video w-full overflow-hidden relative">
               <div className="absolute inset-0 bg-[#182034]/0 group-hover:bg-[#182034]/20 transition-all duration-700 z-10"></div>
@@ -39,7 +39,7 @@ export default function StrategicImpactSection() {
             </div>
           </div>
 
-          {/* Project 2 */}
+          
           <div className="group relative overflow-hidden rounded-xl bg-[var(--surface-elevated)] border-t-4 border-[#3b1600] shadow-md hover:shadow-2xl hover:shadow-[#3b1600]/20 hover:-translate-y-3 transition-all duration-700 ease-out cursor-pointer flex flex-col h-full hover-scale-up animate-fade-in-right stagger-2 hover-glow-card shimmer-on-hover">
             <div className="aspect-video w-full overflow-hidden relative">
               <div className="absolute inset-0 bg-[#182034]/0 group-hover:bg-[#182034]/20 transition-all duration-700 z-10"></div>

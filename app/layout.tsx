@@ -6,6 +6,7 @@ import ThemeToggle from "./themetoggle";
 import LanguageSelector from "./language-selector";
 import Script from "next/script";
 import AmbientGlow from "./ambient-glow";
+import MobileMenu from "./mobile-menu";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -94,13 +95,7 @@ export default function RootLayout({
               </Link>
             </div>
 
-            
-            <div className="md:hidden flex items-center gap-4">
-              <ThemeToggle />
-              <button className="group p-2 -me-2 text-[var(--text-main)] rounded-lg hover:bg-[var(--text-main)]/5 transition-colors">
-                <span className="material-symbols-outlined group-hover:scale-110 transition-transform duration-300">menu</span>
-              </button>
-            </div>
+            <MobileMenu />
           </nav>
         </header>
 

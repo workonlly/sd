@@ -7,7 +7,7 @@ export default function Projects() {
   return (
     <div className="bg-[var(--background)] text-[var(--foreground)] selection:bg-[#d5e3fd] selection:text-[#57657b] min-h-screen overflow-x-hidden">
       
-      {/* Inject Fonts, Icons, and Custom Utilities directly for single-file independence */}
+      
       <style dangerouslySetInnerHTML={{__html: `
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
@@ -27,7 +27,7 @@ export default function Projects() {
    
 
       <main className="pt-16 overflow-x-hidden">
-        {/* Hero Section: Intentional Asymmetry */}
+        
         <section className="relative min-h-[716px] flex items-center bg-[var(--background)] pt-20 pb-24 md:pb-32 px-8 overflow-hidden">
           <div className="max-w-7xl mx-auto w-full grid grid-cols-1 md:grid-cols-12 gap-12 items-center">
             <div className="md:col-span-8 lg:col-span-7">
@@ -48,7 +48,7 @@ export default function Projects() {
               </div>
             </div>
 
-            {/* Hero Abstract Element */}
+            
             <div className="hidden md:block md:col-span-4 lg:col-span-5 relative h-full">
               <div className="absolute -top-12 -right-12 w-96 h-96 bg-[#182034]/5 rounded-full blur-3xl"></div>
               <div className="relative z-10 p-8 bg-[var(--surface-elevated)] rounded-xl border-t-4 border-[#3b1600] shadow-xl shadow-[#182034]/5 rotate-2 translate-y-8">
@@ -72,7 +72,7 @@ export default function Projects() {
           </div>
         </section>
 
-        {/* Section 1: Case Studies (Grid Layout) */}
+        
         <section className="bg-[var(--surface)] py-24 md:py-32 px-8">
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
@@ -91,7 +91,7 @@ export default function Projects() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
-              {/* Card 1 */}
+              
               <div className="group flex flex-col bg-[var(--surface-elevated)] overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-[#182034]/5">
                 <div className="h-64 overflow-hidden relative">
                   <img alt="Urban Housing Density" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmDJBVBnaLOrdhpq8TTCsjST6uu3RFwBWy9Z7UTxpD9W8FsGA0_p6H10kX4k86vFZ-77VUnyhX_NxHyNGmnggAV9KH4FPbvpVajk3XWztbVwxbB_cXzNWroChsMbB9HjcNth5tNYhQBOUXbmiCH-_3FGxYFnW7PYKbW0xxoyPLwxL2G1DJyti2oHZ5zY0EGPHgxNYE1WWILg_QaJkkFVlQ-VxOzYA_TWA75u65WRZJ4mSLf8zb-q5kNCIqM0Ls0NqAvHG1bdWihDtl" />
@@ -134,14 +134,14 @@ export default function Projects() {
           </div>
         </section>
 
-        {/* Section 2: Presentations (Horizontal Scroll) */}
+        
         <section className="py-24 md:py-32 overflow-hidden bg-[var(--background)]">
           <div className="max-w-7xl mx-auto px-8 mb-12">
             <h2 className="text-3xl md:text-4xl font-extrabold tracking-tighter text-[var(--text-main)]">Presentations & Engagements</h2>
           </div>
           
           <div className="flex overflow-x-auto gap-8 px-8 md:px-[calc((100vw-80rem)/2+2rem)] hide-scrollbar snap-x snap-mandatory">
-            {/* Presentation Card 1 */}
+            
             <div className="flex-none w-[85vw] md:w-[600px] snap-center">
               <div className="bg-[var(--surface-2)] p-8 md:p-12 rounded-xl relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-[#182034]/5 -mr-8 -mt-8 rounded-full transition-transform group-hover:scale-150"></div>
@@ -166,7 +166,7 @@ export default function Projects() {
               </div>
             </div>
 
-            {/* Card 2 (Empty state for scroll demonstration) */}
+            
             <div className="flex-none w-[85vw] md:w-[600px] snap-center">
               <div className="bg-[#182034] p-8 md:p-12 rounded-xl h-full flex flex-col justify-center">
                 <h3 className="text-3xl font-extrabold tracking-tight text-[#ffffff] mb-4">Upcoming Session</h3>
@@ -177,7 +177,7 @@ export default function Projects() {
           </div>
         </section>
 
-        {/* Section 3: Technical Toolkit (Visual Tag Grid) */}
+        
         <section className="bg-[var(--surface)] py-24 md:py-32 px-8">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-16">
@@ -186,7 +186,7 @@ export default function Projects() {
             </div>
             
             <div className="space-y-16">
-              {/* Category 1 */}
+              
               <div>
                 <h4 className="text-xs font-bold tracking-[0.2em] uppercase text-[var(--text-muted)] mb-8 border-b border-[var(--border)]/30 pb-2">Data & Systems Architecture</h4>
                 <div className="flex flex-wrap gap-3">
@@ -198,7 +198,7 @@ export default function Projects() {
                 </div>
               </div>
 
-              {/* Category 2 */}
+              
               <div>
                 <h4 className="text-xs font-bold tracking-[0.2em] uppercase text-[var(--text-muted)] mb-8 border-b border-[var(--border)]/30 pb-2">AI & Generative Workflows</h4>
                 <div className="flex flex-wrap gap-3">
@@ -213,7 +213,7 @@ export default function Projects() {
           </div>
         </section>
 
-        {/* Bottom CTA */}
+        
         <section className="py-24 px-8 bg-[#182034] relative overflow-hidden">
           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
           <div className="max-w-7xl mx-auto relative z-10 text-center">
@@ -231,7 +231,7 @@ export default function Projects() {
       </main>
 
 
-      {/* Google Translate Integration */}
+      
       <div id="google_translate_element" style={{ position: 'fixed', bottom: '20px', right: '20px', zIndex: 1000 }}></div>
       <Script
         id="google-translate-script"

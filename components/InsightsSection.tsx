@@ -12,7 +12,7 @@ export default function InsightsSection() {
         </div>
         
         <div className="space-y-0 border-t border-white/10">
-          {/* Article 1 */}
+          
           <Link className="group flex flex-col md:flex-row justify-between items-start md:items-center py-10 border-b border-white/10 hover:bg-white/[0.05] transition-all duration-500 px-4 -mx-4 hover:px-8 rounded-lg hover:-translate-y-1 animate-fade-in-left stagger-1 hover-glow-card shimmer-on-hover icon-drift" href="#">
             <div className="max-w-xl transition-all duration-500 group-hover:translate-x-3">
               <span className="text-[0.6875rem] text-[#ffb68e] font-bold tracking-widest uppercase mb-2 block transition-all duration-500 group-hover:text-[#ffdbca] group-hover:tracking-[0.15em]">MARCH 2024 • POLICY BRIEF</span>
@@ -21,7 +21,7 @@ export default function InsightsSection() {
             <span className="material-symbols-outlined text-3xl opacity-0 group-hover:opacity-100 transition-all duration-500 -translate-x-8 group-hover:translate-x-0 text-[#ffdbca]">trending_flat</span>
           </Link>
           
-          {/* Article 2 */}
+          
           <Link className="group flex flex-col md:flex-row justify-between items-start md:items-center py-10 border-b border-white/10 hover:bg-white/[0.05] transition-all duration-500 px-4 -mx-4 hover:px-8 rounded-lg hover:-translate-y-1 animate-fade-in-left stagger-2 hover-glow-card shimmer-on-hover icon-drift" href="#">
             <div className="max-w-xl transition-all duration-500 group-hover:translate-x-3">
               <span className="text-[0.6875rem] text-[#ffb68e] font-bold tracking-widest uppercase mb-2 block transition-all duration-500 group-hover:text-[#ffdbca] group-hover:tracking-[0.15em]">JANUARY 2024 • TECHNOLOGY</span>
@@ -30,7 +30,7 @@ export default function InsightsSection() {
             <span className="material-symbols-outlined text-3xl opacity-0 group-hover:opacity-100 transition-all duration-500 -translate-x-8 group-hover:translate-x-0 text-[#ffdbca]">trending_flat</span>
           </Link>
           
-          {/* Article 3 */}
+          
           <Link className="group flex flex-col md:flex-row justify-between items-start md:items-center py-10 border-b border-white/10 hover:bg-white/[0.05] transition-all duration-500 px-4 -mx-4 hover:px-8 rounded-lg hover:-translate-y-1 animate-fade-in-left stagger-3 hover-glow-card shimmer-on-hover icon-drift" href="#">
             <div className="max-w-xl transition-all duration-500 group-hover:translate-x-3">
               <span className="text-[0.6875rem] text-[#ffb68e] font-bold tracking-widest uppercase mb-2 block transition-all duration-500 group-hover:text-[#ffdbca] group-hover:tracking-[0.15em]">NOVEMBER 2023 • CASE STUDY</span>

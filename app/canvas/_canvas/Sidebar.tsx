@@ -43,6 +43,7 @@ function ToastNotification({ message, onDone }: { message: string; onDone: () =>
 function EmptyState({ label }: { label: string }) {
     return (
         <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+          
             <svg className="w-12 h-12 text-slate-200 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
@@ -111,12 +112,13 @@ function WorksTab({ personId }: { personId: string }) {
     return (
         <div className="p-5 space-y-4">
             {works.map((work: any, i: number) => (
-                <div key={work.id || i} className="rounded-xl border border-slate-100 p-4 hover:border-slate-200 hover:shadow-sm transition-all">
+                  <div key={work.id || i} className="rounded-xl border border-slate-100 p-4 hover:border-slate-200 hover:shadow-sm transition-all">
                     {work.cover_url && (
                         <img src={work.cover_url} alt={work.title} className="w-full h-36 object-cover rounded-lg mb-3" />
-                    )}
-                    <p className="text-sm font-bold text-slate-800 leading-snug">{work.title}</p>
-                    {work.year && <p className="text-xs text-slate-400 mt-1">{work.year}</p>}
+                      )}
+                       <p className="text-sm font-bold text-slate-800 leading-snug">{work.title}</p>
+                
+                       {work.year && <p className="text-xs text-slate-400 mt-1">{work.year}</p>}
                     {work.description && <p className="text-xs text-slate-500 mt-2 leading-relaxed">{work.description}</p>}
                 </div>
             ))}
@@ -132,8 +134,8 @@ function ArchivesTab({ person }: { person: PersonData }) {
     return (
         <div className="p-5 space-y-3">
             {docs.map((docItem: any, i: number) => {
-                let parsedItem = docItem;
-                if (typeof docItem === 'string' && docItem.trim().startsWith('{')) {
+                  let parsedItem = docItem;
+                  if (typeof docItem === 'string' && docItem.trim().startsWith('{')) {
                     try {
                         parsedItem = JSON.parse(docItem);
                     } catch (e) {
@@ -141,9 +143,9 @@ function ArchivesTab({ person }: { person: PersonData }) {
                     }
                 }
                 const isObject = typeof parsedItem === 'object' && parsedItem !== null;
-                const url = isObject ? parsedItem.url : parsedItem;
+                  const url = isObject ? parsedItem.url : parsedItem;
                 const title = isObject && parsedItem.title ? parsedItem.title : `Document ${i + 1}`;
-                const type = isObject && parsedItem.type ? parsedItem.type : null;
+                  const type = isObject && parsedItem.type ? parsedItem.type : null;
                 const fallbackDocName = typeof url === 'string' && url.includes('id=') ? new URL(url).searchParams.get('id') : (typeof url === 'string' ? url.split('d/')[1]?.split('/')[0] : null);
                 const displayDesc = type || fallbackDocName;
 
@@ -157,8 +159,8 @@ function ArchivesTab({ person }: { person: PersonData }) {
                 >
                     <div className="w-10 h-12 rounded-md bg-slate-100 flex items-center justify-center shrink-0 group-hover:bg-indigo-50 transition-colors">
                         <svg className="w-5 h-5 text-slate-400 group-hover:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
+                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
                     </div>
                     <div className="min-w-0 flex-1">
                         <p className="text-sm font-semibold text-slate-700 truncate group-hover:text-indigo-600 transition-colors">{title}</p>
@@ -245,15 +247,18 @@ export default function Sidebar({ person, onClose, onIsolateToggle, isolateActiv
                 
                 <div className="px-5 mt-25 pb-4 border-b border-slate-100 shrink-0">
                     <div className="flex items-start justify-between gap-3">
+                      
                         {thumbnailUrl && (
-                            <div className="w-14 h-14 relative rounded-full overflow-hidden shrink-0 border border-slate-200 shadow-sm mt-1">
+                       
+                       <div className="w-14 h-14 relative rounded-full overflow-hidden shrink-0 border border-slate-200 shadow-sm mt-1">
                                 <Image src={thumbnailUrl} alt={person.label} fill className="object-cover" unoptimized sizes="56px" />
                             </div>
                         )}
                         <div className="min-w-0 flex-1">
                             {person.rawId && (
                                 <p className="text-[9px] font-mono text-slate-400 tracking-wider mb-1">{person.rawId}</p>
-                            )}
+                     
+                     )}
                             <h2 className="text-base font-bold text-slate-800 leading-tight break-words">{person.label}</h2>
                             {person.birthYear && (
                                 <p className="text-xs text-slate-400 mt-1">b. {person.birthYear}</p>
@@ -294,7 +299,9 @@ export default function Sidebar({ person, onClose, onIsolateToggle, isolateActiv
                             aria-label="Toggle isolate view — show only direct relatives"
                         >
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                         
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                   
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                             </svg>
                             {isolateActive ? 'Exit Isolate' : 'Isolate View'}
@@ -306,13 +313,17 @@ export default function Sidebar({ person, onClose, onIsolateToggle, isolateActiv
                 <div className="flex border-b border-slate-100 shrink-0 sticky top-0 bg-white z-10">
                     {tabs.map(tab => (
                         <button
-                            key={tab.id}
-                            onClick={() => handleTabSwitch(tab.id)}
+                               key={tab.id}
+                        
+                               onClick={() => handleTabSwitch(tab.id)}
                             className={`flex-1 py-3 text-xs font-bold tracking-wide transition-all min-h-[44px] ${
                                 activeTab === tab.id
+                     
                                     ? 'text-indigo-600 border-b-2 border-indigo-600'
                                     : 'text-slate-400 hover:text-slate-600 border-b-2 border-transparent'
-                            }`}
+                   
+                   
+                                }`}
                             aria-selected={activeTab === tab.id}
                             role="tab"
                         >
@@ -323,11 +334,14 @@ export default function Sidebar({ person, onClose, onIsolateToggle, isolateActiv
 
                 
                 <div className="flex-1 overflow-y-auto canvas-sidebar-scroll" role="tabpanel">
+                
                     {activeTab === 'personal' && <PersonalTab person={person} />}
+               
+               
                     {activeTab === 'archives' && <ArchivesTab person={person} />}
                 </div>
-            </aside>
-
+              </aside>
+  
             {toast && (
                 <ToastNotification message={toast} onDone={() => setToast(null)} />
             )}

@@ -23,10 +23,9 @@ export default function ArchiveLogin() {
       if (accessToken) {
         
         window.history.replaceState(null, '', window.location.pathname);
-    
+
         fetch(`${API_URL}/auth/oauth-login`, {
           method: 'POST',
-  
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ access_token: accessToken })
         })
@@ -37,19 +36,16 @@ export default function ArchiveLogin() {
             localStorage.setItem('token', data.token);
             
             router.push('/canvas');
-           } else {
+          } else {
             const errorData = await res.json().catch(() => ({}));
-             alert(errorData.message || "Access Denied. You must request access first.");
-             console.log(errorData +"error is here")
-           
-             setLoading(false);
-          }
-        }) 
-       .catch(err => {
-            console.error("Failed to sync oauth session", err);
-                alert("A network error occurred. Please try again.");
-             console.log("error is here")
+            alert(errorData.message || "Access Denied. You must request access first.");
             setLoading(false);
+          }
+        })
+        .catch(err => {
+          console.error("Failed to sync oauth session", err);
+          alert("A network error occurred. Please try again.");
+          setLoading(false);
         });
       } else {
         setLoading(false);
@@ -135,7 +131,7 @@ export default function ArchiveLogin() {
                
                  </label>
                 <input 
-                  className="w-full bg-[var(--surface-2)] border-0 border-b border-[var(--border-strong)] px-0 py-3 text-sm focus:ring-0 focus:border-[#182034] transition-all placeholder:text-[#c4c6cf]" 
+                  className="w-full bg-[var(--surface-2)] border-0 border-b border-[var(--border-strong)] px-2 py-3 text-sm focus:ring-0 focus:border-[#182034] transition-all placeholder:text-[#c4c6cf]" 
                     id="email" 
                      name="email" 
                     placeholder="lineage@archive.net" 
@@ -152,7 +148,7 @@ export default function ArchiveLogin() {
                   Password
                    </label>
                   <input 
-                     className="w-full bg-[var(--surface-2)] border-0 border-b border-[var(--border-strong)] px-0 py-3 text-sm focus:ring-0 focus:border-[#182034] transition-all placeholder:text-[#c4c6cf]" 
+                     className="w-full bg-[var(--surface-2)] border-0 border-b border-[var(--border-strong)] px-2 py-3 text-sm focus:ring-0 focus:border-[#182034] transition-all placeholder:text-[#c4c6cf]" 
                    id="password" 
                     name="password" 
                   placeholder="••••••••" 
