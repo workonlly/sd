@@ -72,32 +72,37 @@ function CanvasImpl() {
     });
 
     const handleSelect = useCallback((nodeId: string) => {
-          setSelectedId(nodeId);
-     
+          setSelectedId(nodeId); 
+
           setSidebarOpen(true);
-     
-          setIsolateActive(false);
+
+          setIsolateActive(false);   
+
+
+          const url = new URL(window.location.href);
+            url.searchParams.set('id', nodeId);
+           window.history.pushState({ nodeId }, '', url.toString());
 
 
         setTimeout(() => {
-            const node = getNode(nodeId);
-     
-            if (!node) return;
-             const { zoom } = getViewport();
+             const node = getNode(nodeId);
+      
+             if (!node) return;
+                const { zoom } = getViewport();
        
-            const cx = node.position.x + ((node.width as number) || 220) / 2;
+             const cx = node.position.x + ((node.width as number) || 220) / 2;
        
-            const cy = node.position.y + ((node.height as number) || 92) / 2;
-            setCenter(cx, cy, { duration: 450, zoom: Math.max(zoom, 0.75) });
+             const cy = node.position.y + ((node.height as number) || 92) / 2;
+                setCenter(cx, cy, { duration: 450, zoom: Math.max(zoom, 0.75) });
         }, 60);
     }, [getNode, getViewport, setCenter]);
 
-    useEffect(() => { onSelectRef.current = handleSelect; }, [handleSelect]);
+      useEffect(() => { onSelectRef.current = handleSelect; }, [handleSelect]);
 
 
     
     useEffect(() => {
-        if (!selectedId) return;
+         if (!selectedId) return;
 
     
         setNodes(curr => curr.map(n => {
@@ -135,13 +140,17 @@ function CanvasImpl() {
     useEffect(() => {
         (async () => {
             try {
-                const res = await fetch(`${API_URL}/canvas/data?type=initial`);
+                const params = new URLSearchParams(window.location.search);
+                let startId = params.get('id') || null;
+                const qs = startId ? `?person=${startId}&type=initial` : `?type=initial`;
+
+                const res = await fetch(`${API_URL}/canvas/data${qs}`);
               
                 if (!res.ok) throw new Error('Failed to fetch initial tree data');
             
                 const data = await res.json();
 
-                const rootInd = data.individuals?.find((i: any) => i.id === data.startPersonId);
+                const rootInd = data.individuals?.find((i: any) => i.id === (startId || data.startPersonId));
                 if (rootInd) {
                     setStartPersonName(`${rootInd.given_names || ''} ${rootInd.surname || ''}`.trim());
                 }
@@ -158,6 +167,10 @@ function CanvasImpl() {
                 }
 
                 mergeDataIntoGraph(data, null);
+
+                if (startId && data.individuals?.find((i: any) => i.id === startId)) {
+                    setTimeout(() => handleSelect(startId!), 200);
+                }
             } catch (err) {
                 console.error(err);
             } finally {

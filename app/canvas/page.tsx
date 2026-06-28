@@ -69,9 +69,6 @@ function CanvasImpl() {
          const url = new URL(window.location.href);
           url.searchParams.set('id', nodeId);
          window.history.pushState({ nodeId }, '', url.toString());
-  
-            sessionStorage.setItem('canvas_selected_id', nodeId);
-
         setTimeout(() => {
             const node = getNode(nodeId);
             if (!node) return;
@@ -180,7 +177,7 @@ function CanvasImpl() {
         (async () => {
             try {
                 const params = new URLSearchParams(window.location.search);
-                let startId = params.get('id') || sessionStorage.getItem('canvas_selected_id') || null;
+                let startId = params.get('id') || null;
                 const qs = startId ? `?person=${startId}&type=initial` : `?type=initial`;
 
                 const res = await fetch(`${API_URL}/canvas/data${qs}`);
