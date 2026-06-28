@@ -42,6 +42,7 @@ export default function ContactForm({ variant = "full" }: ContactFormProps) {
         setStatus("success");
         setStatusMessage("Message sent successfully! I'll get back to you soon.");
         setFormData({ name: "", email: "", title: "", message: "" });
+        console.log("message done")
         setTimeout(() => setStatus("idle"), 5000);
       } else if (response.status === 429) {
         setStatus("error");
@@ -50,16 +51,19 @@ export default function ContactForm({ variant = "full" }: ContactFormProps) {
       } else {
         setStatus("error");
         setStatusMessage("Failed to send message. Please try again.");
+        console.log("eroor coming in sending message")
       }
     } catch (error) {
       setStatus("error");
       setStatusMessage("An error occurred. Please try again.");
+      console.log("error in catch",error)
     }
   }
 
   if (variant === "minimal") {
     return (
-      <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-md">
+      < form onSubmit={handleSubmit} className="space-y-4 w-full max-w-md">
+       
         <input
           type="email"
           placeholder="your.email@example.com"
@@ -68,8 +72,10 @@ export default function ContactForm({ variant = "full" }: ContactFormProps) {
           required
           disabled={status === "loading"}
           className="w-full bg-[var(--surface-elevated)] border-b-2 border-[var(--border-strong)] focus:border-[var(--brand)] border-t-0 border-x-0 px-4 py-3 outline-none transition-colors text-[var(--text-main)] placeholder:text-[var(--text-muted)]"
-        />
-        <input
+       
+       />
+        
+         <input
           type="text"
           placeholder="Subject / Title"
           value={formData.title}
@@ -78,30 +84,33 @@ export default function ContactForm({ variant = "full" }: ContactFormProps) {
           disabled={status === "loading"}
           className="w-full bg-[var(--surface-elevated)] border-b-2 border-[var(--border-strong)] focus:border-[var(--brand)] border-t-0 border-x-0 px-4 py-3 outline-none transition-colors text-[var(--text-main)] placeholder:text-[var(--text-muted)]"
         />
+        
         <textarea
-          placeholder="Your message here..."
-          value={formData.message}
+           placeholder="Your message here..."
+            value={formData.message}
           onChange={(e) => setFormData({ ...formData, message: e.target.value })}
           required
           disabled={status === "loading"}
           className="w-full bg-[var(--surface-elevated)] border border-[var(--border)] px-4 py-3 outline-none focus:border-[var(--brand)] transition-colors text-[var(--text-main)] placeholder:text-[var(--text-muted)] rounded-md resize-none"
           rows={4}
         />
-        <button
+         
+         <button
           type="submit"
           disabled={status === "loading"}
           className="w-full btn-primary px-6 py-3 disabled:opacity-50"
         >
-          {status === "loading" ? "Sending..." : "Send Message"}
+             {status === "loading" ? "Sending..." : "Send Message"}
         </button>
+        
         {statusMessage && (
           <div
             className={`text-sm font-medium text-center ${
               status === "success" ? "text-emerald-500" : "text-rose-500"
-            }`}
+              }`}
           >
-            {statusMessage}
-          </div>
+               {statusMessage}
+            </div>
         )}
       </form>
     );
@@ -109,8 +118,9 @@ export default function ContactForm({ variant = "full" }: ContactFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 w-full max-w-2xl">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <input
+       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+          <input
           type="text"
           placeholder="Your Name"
           value={formData.name}
@@ -119,24 +129,28 @@ export default function ContactForm({ variant = "full" }: ContactFormProps) {
           disabled={status === "loading"}
           className="bg-[var(--surface-elevated)] border-b-2 border-[var(--border-strong)] focus:border-[var(--brand)] border-t-0 border-x-0 px-4 py-3 outline-none transition-colors text-[var(--text-main)] placeholder:text-[var(--text-muted)]"
         />
-        <input
-          type="email"
-          placeholder="your.email@example.com"
+           
+           <input
+            type="email"
+           placeholder="your.email@example.com"
           value={formData.email}
           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
           required
-          disabled={status === "loading"}
-          className="bg-[var(--surface-elevated)] border-b-2 border-[var(--border-strong)] focus:border-[var(--brand)] border-t-0 border-x-0 px-4 py-3 outline-none transition-colors text-[var(--text-main)] placeholder:text-[var(--text-muted)]"
-        />
+            disabled={status === "loading"}
+           className="bg-[var(--surface-elevated)] border-b-2 border-[var(--border-strong)] focus:border-[var(--brand)] border-t-0 border-x-0 px-4 py-3 outline-none transition-colors text-[var(--text-main)] placeholder:text-[var(--text-muted)]"
+       
+       />
       </div>
+     
       <input
         type="text"
         placeholder="Subject Title"
         value={formData.title}
+       
         onChange={(e) => setFormData({ ...formData, title: e.target.value })}
         required
-        disabled={status === "loading"}
-        className="w-full bg-[var(--surface-elevated)] border-b-2 border-[var(--border-strong)] focus:border-[var(--brand)] border-t-0 border-x-0 px-4 py-3 outline-none transition-colors text-[var(--text-main)] placeholder:text-[var(--text-muted)]"
+         disabled={status === "loading"}
+          className="w-full bg-[var(--surface-elevated)] border-b-2 border-[var(--border-strong)] focus:border-[var(--brand)] border-t-0 border-x-0 px-4 py-3 outline-none transition-colors text-[var(--text-main)] placeholder:text-[var(--text-muted)]"
       />
       <textarea
         placeholder="Your message..."
@@ -147,22 +161,29 @@ export default function ContactForm({ variant = "full" }: ContactFormProps) {
         className="w-full bg-[var(--surface-elevated)] border border-[var(--border)] px-4 py-3 outline-none focus:border-[var(--brand)] transition-colors text-[var(--text-main)] placeholder:text-[var(--text-muted)] rounded-md resize-none mt-4"
         rows={6}
       />
+     
       <button
         type="submit"
         disabled={status === "loading"}
         className="w-full btn-primary px-8 py-4 disabled:opacity-50"
       >
+     
         {status === "loading" ? "Sending..." : "Send Message"}
+     
       </button>
-      {statusMessage && (
-        <div
+           {statusMessage && (
+     
+     <div
           className={`text-sm font-medium text-center ${
-            status === "success" ? "text-emerald-500" : "text-rose-500"
+               status === "success" ? "text-emerald-500" : "text-rose-500"
           }`}
         >
           {statusMessage}
+     
+     
         </div>
-      )}
+     
+     )}
     </form>
   );
 }

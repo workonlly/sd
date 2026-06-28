@@ -26,16 +26,20 @@ export default function NewsletterForm() {
 
       if (response.ok) {
         setStatus("success");
+
         setMessage("Thank you for subscribing!");
         setEmail("");
         setTimeout(() => setStatus("idle"), 3000);
       } else {
         setStatus("error");
+        console.log("error is here")
+        
         setMessage("Failed to subscribe. Please try again.");
       }
     } catch (error) {
-      setStatus("error");
-      setMessage("An error occurred. Please try again.");
+       setStatus("error");
+       setMessage("An error occurred. Please try again.");
+       console.log("errori" + error)
     }
   }
 
@@ -51,19 +55,20 @@ export default function NewsletterForm() {
         disabled={status === "loading"}
       />
       <button
+
         type="submit"
         disabled={status === "loading"}
-        className="btn-primary px-8 py-3 disabled:opacity-50"
+          className="btn-primary px-8 py-3 disabled:opacity-50"
       >
         {status === "loading" ? "Subscribing..." : "Subscribe"}
-      </button>
-      {message && (
+       </button>
+        {message && (
         <div
-          className={`mt-2 text-sm font-medium ${
-            status === "success" ? "text-emerald-500" : "text-rose-500"
+            className={`mt-2 text-sm font-medium ${
+               status === "success" ? "text-emerald-500" : "text-rose-500"
           }`}
         >
-          {message}
+            {message}
         </div>
       )}
     </form>
