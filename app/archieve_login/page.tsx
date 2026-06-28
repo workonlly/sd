@@ -16,8 +16,9 @@ export default function ArchiveLogin() {
     
     const hash = window.location.hash;
     if (hash && hash.includes('access_token=')) {
+       
       setLoading(true);
-      const params = new URLSearchParams(hash.substring(1));
+          const params = new URLSearchParams(hash.substring(1));
       const accessToken = params.get('access_token');
 
       if (accessToken) {
@@ -26,25 +27,31 @@ export default function ArchiveLogin() {
 
         fetch(`${API_URL}/auth/oauth-login`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ access_token: accessToken })
         })
-        .then(async (res) => {
+          .then(async (res) => {
           if (res.ok) {
             const data = await res.json();
             
+           
             localStorage.setItem('token', data.token);
             
+        
             router.push('/canvas');
           } else {
+        
             const errorData = await res.json().catch(() => ({}));
+        
             alert(errorData.message || "Access Denied. You must request access first.");
+             console.log("Error message is"+errorData)
             setLoading(false);
           }
         })
         .catch(err => {
           console.error("Failed to sync oauth session", err);
           alert("A network error occurred. Please try again.");
+      
           setLoading(false);
         });
       } else {
@@ -58,6 +65,7 @@ export default function ArchiveLogin() {
     try {
       
       const res = await fetch(`${API_URL}/auth/google-url?redirectTo=${encodeURIComponent(window.location.origin + '/archieve_login')}`);
+      
       if (res.ok) {
         const data = await res.json();
             if (data.url) {
@@ -86,17 +94,22 @@ export default function ArchiveLogin() {
       
       if (res.ok) {
         const data = await res.json();
+       
+        console.log("tokenset")
+      
         localStorage.setItem('token', data.token);
         router.push('/canvas');
      
       } else {
           const errorData = await res.json().catch(() => ({}));
           alert(errorData.message || "Invalid email or password");
+          console.log("Error comming is"+errorData)
+          
         setLoading(false);
       }
     } catch (err) {
-      console.error(err);
-      alert("A network error occurred. Please try again.");
+       console.error(err);
+        alert("A network error occurred. Please try again.");
       console.log("a netwrok error came inthe backend")
       
       setLoading(false);

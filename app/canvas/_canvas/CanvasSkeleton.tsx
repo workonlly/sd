@@ -22,37 +22,11 @@ export function NodeSkeleton() {
 }
 
 export function CanvasLoadingSkeleton() {
-    const skeletons = [
-        { x: '50%', y: '35%' },
-       
-        { x: '30%', y: '55%' },
-       
-        { x: '70%', y: '55%' },
-       
-         { x: '20%', y: '70%' },
-        { x: '50%', y: '70%' },
-        { x: '80%', y: '70%' },
-    ];
-
     return (
-        <div className="absolute inset-0 bg-[#FAF7F2]" aria-live="polite" aria-label="Loading family tree">
-              {skeletons.map((pos, i) => (
-              
-              <div
-                    key={i}
-              
-                    className="absolute"
-                    style={{ left: pos.x, top: pos.y, transform: 'translate(-50%, -50%)' }}
-                >
-                    <NodeSkeleton />
-                </div>
-            ))}
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2.5">
-              
-                  <div className="w-3 h-3 rounded-full bg-indigo-300 animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <div className="w-3 h-3 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: '120ms' }} />
-              
-                 <div className="w-3 h-3 rounded-full bg-indigo-500 animate-bounce" style={{ animationDelay: '240ms' }} />
+        <div className="absolute inset-0 bg-[#FAF7F2] flex items-center justify-center" aria-live="polite" aria-label="Loading family tree">
+            <div className="flex flex-col items-center gap-4">
+                <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+                <div className="text-indigo-600 font-bold text-sm tracking-widest uppercase animate-pulse">Loading...</div>
             </div>
         </div>
     );

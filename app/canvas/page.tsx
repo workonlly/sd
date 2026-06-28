@@ -2,26 +2,20 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useCallback, useRef } from 'react';
-import {
-    ReactFlow,
-    MiniMap,
-    Background,
-    BackgroundVariant,
-    useNodesState,
-    useEdgesState,
-    useReactFlow,
-    useViewport,
-    ReactFlowProvider,
-    type Node,
-    type Edge,
-} from '@xyflow/react';
+
+import {ReactFlow,MiniMap,Background,BackgroundVariant,useNodesState,useEdgesState,useReactFlow,useViewport,ReactFlowProvider,type Node,type Edge,} from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
+
 import '../globals.css';
 
 import PersonNode from './_canvas/PersonNode';
 import Sidebar from './_canvas/Sidebar';
+
+
 import NetworkToast from './_canvas/NetworkToast';
+
 import { CanvasLoadingSkeleton } from './_canvas/CanvasSkeleton';
+
 import ErrorBoundary from './_canvas/ErrorBoundary';
 import { useGraphLayout } from './_canvas/useGraphLayout';
 
@@ -70,13 +64,13 @@ function CanvasImpl() {
     const handleSelect = useCallback((nodeId: string) => {
         setSelectedId(nodeId);
         setSidebarOpen(true);
-        setIsolateActive(false);
+         setIsolateActive(false);
 
-        const url = new URL(window.location.href);
-        url.searchParams.set('id', nodeId);
-        window.history.pushState({ nodeId }, '', url.toString());
-
-        sessionStorage.setItem('canvas_selected_id', nodeId);
+         const url = new URL(window.location.href);
+          url.searchParams.set('id', nodeId);
+         window.history.pushState({ nodeId }, '', url.toString());
+  
+            sessionStorage.setItem('canvas_selected_id', nodeId);
 
         setTimeout(() => {
             const node = getNode(nodeId);
@@ -93,15 +87,16 @@ function CanvasImpl() {
     
     useEffect(() => {
         if (!selectedId) return;
-
+ 
         setNodes(curr => curr.map(n => {
-            if (!isolateActive) {
-                const { isIsolated, ...rest } = n.data;
+               if (!isolateActive) {
+                    const { isIsolated, ...rest } = n.data;
                 return { ...n, data: rest };
             }
 
-            const node = curr.find(x => x.id === selectedId);
-            const relatedEdges = edges.filter(e => e.source === selectedId || e.target === selectedId);
+              const node = curr.find(x => x.id === selectedId);
+         
+              const relatedEdges = edges.filter(e => e.source === selectedId || e.target === selectedId);
             const relatedIds = new Set([
                 selectedId,
                 ...relatedEdges.map(e => e.source === selectedId ? e.target : e.source),
@@ -116,59 +111,19 @@ function CanvasImpl() {
         setNodes(curr => curr.map(n => ({
             ...n,
             data: { ...n.data, isSelected: n.id === selectedId },
+
         })));
     }, [selectedId, setNodes]);
-
-    
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-
-            if (e.key === 'Escape') {
-                setSidebarOpen(false);
-                setIsolateActive(false);
-            }
-
-            if (e.key === '?' && !e.ctrlKey && !e.metaKey) {
-                
-            }
-
-            if ((e.ctrlKey || e.metaKey) && e.key === '0') {
-                e.preventDefault();
-                fitView({ padding: 0.25, duration: 400 });
-            }
-
-            if ((e.ctrlKey || e.metaKey) && (e.key === '=' || e.key === '+')) {
-                e.preventDefault();
-            }
-
-            if ((e.ctrlKey || e.metaKey) && e.key === '-') {
-                e.preventDefault();
-            }
-        };
-
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [fitView]);
-
-    
-    useEffect(() => {
-        let resizeTimer: ReturnType<typeof setTimeout>;
-        const handleResize = () => {
-            clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(() => fitView({ padding: 0.25 }), 150);
-        };
-        window.addEventListener('resize', handleResize);
-        return () => { window.removeEventListener('resize', handleResize); clearTimeout(resizeTimer); };
-    }, [fitView]);
+ 
 
     
     useEffect(() => {
         const handlePopState = (e: PopStateEvent) => {
             const nodeId = e.state?.nodeId;
             if (nodeId) {
+              
                 setSelectedId(nodeId);
-                setSidebarOpen(true);
+                   setSidebarOpen(true);
                 setTimeout(() => {
                     const node = getNode(nodeId);
                     if (node) {
@@ -186,14 +141,7 @@ function CanvasImpl() {
         return () => window.removeEventListener('popstate', handlePopState);
     }, [getNode, getViewport, setCenter]);
 
-    
-    useEffect(() => {
-        const handleWheel = (e: WheelEvent) => {
-            if (e.ctrlKey || e.metaKey) e.preventDefault();
-        };
-        window.addEventListener('wheel', handleWheel, { passive: false });
-        return () => window.removeEventListener('wheel', handleWheel);
-    }, []);
+ 
       
     useEffect(() => {
         async function authetication() {
@@ -236,6 +184,7 @@ function CanvasImpl() {
                 const qs = startId ? `?person=${startId}&type=initial` : `?type=initial`;
 
                 const res = await fetch(`${API_URL}/canvas/data${qs}`);
+               
                 if (!res.ok) throw new Error('Failed to fetch initial tree data');
                 const data = await res.json();
 
@@ -271,28 +220,31 @@ function CanvasImpl() {
                 <CanvasLoadingSkeleton />
             ) : (
                 <ErrorBoundary>
+
                     <ReactFlow
                         nodes={nodes}
                         edges={edges}
-                        onNodesChange={onNodesChange}
-                        onEdgesChange={onEdgesChange}
+                          onNodesChange={onNodesChange}
+                         onEdgesChange={onEdgesChange}
                         nodeTypes={nodeTypes}
-                        fitView
-                        fitViewOptions={{ padding: 0.28, maxZoom: 1 }}
+                         fitView
+                          fitViewOptions={{ padding: 0.28, maxZoom: 1 }}
                         minZoom={0.05}
-                        maxZoom={2.5}
-                        proOptions={{ hideAttribution: true }}
+                          maxZoom={2.5}
+                          proOptions={{ hideAttribution: true }}
                         className="canvas-no-print"
                     >
+
                         <GridBackground />
                         <MiniMap
-                            nodeColor={n => n.data?.isRoot ? '#6366f1' : n.data?.gender === 'M' ? '#60a5fa' : n.data?.gender === 'F' ? '#f43f5e' : '#94a3b8'}
-                            maskColor="rgba(250,247,242,0.88)"
-                            className="border border-slate-200 rounded-xl canvas-minimap"
-                            pannable
-                            zoomable
-                            position="bottom-left"
+                               nodeColor={n => n.data?.isRoot ? '#6366f1' : n.data?.gender === 'M' ? '#60a5fa' : n.data?.gender === 'F' ? '#f43f5e' : '#94a3b8'}
+                             maskColor="rgba(250,247,242,0.88)"
+                              className="border border-slate-200 rounded-xl canvas-minimap"
+                             pannable
+                              zoomable
+                              position="bottom-left"
                         />
+                 
                     </ReactFlow>
                 </ErrorBoundary>
             )}
@@ -301,30 +253,33 @@ function CanvasImpl() {
             <nav className="absolute top-5 left-5 z-50 flex items-center gap-2 canvas-nav canvas-no-print">
                 <button
                     onClick={() => { localStorage.removeItem('token'); router.push('/'); }}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-white rounded-xl shadow-md hover:shadow-lg border border-slate-200 transition-all group min-h-[44px]"
-                    aria-label="Go to home and log out"
+                     className="flex items-center gap-2 px-4 py-2.5 bg-white rounded-xl shadow-md hover:shadow-lg border border-slate-200 transition-all group min-h-[44px]"
+                       aria-label="Go to home and log out"
                 >
+                  
                     <svg className="w-4 h-4 text-slate-500 group-hover:-translate-y-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
+                    
                     <span className="text-sm font-semibold text-slate-700">Home</span>
+                
                 </button>
 
                 {loadedCount > 0 && (
-                    <div className="px-3 py-2 bg-white rounded-xl shadow-sm border border-slate-200 text-xs font-semibold text-slate-500">
-                        <span className="text-indigo-600 font-bold">{loadedCount}</span> nodes
-                    </div>
+                      <div className="px-3 py-2 bg-white rounded-xl shadow-sm border border-slate-200 text-xs font-semibold text-slate-500">
+                           <span className="text-indigo-600 font-bold">{loadedCount}</span> nodes
+                     </div>
                 )}
             </nav>
 
             
             {sidebarOpen && selectedPerson && (
-                <Sidebar
-                    person={selectedPerson}
-                    onClose={() => { setSidebarOpen(false); setIsolateActive(false); }}
-                    onIsolateToggle={setIsolateActive}
-                    isolateActive={isolateActive}
-                    triggerRef={sidebarTriggerRef}
+                 <Sidebar
+                     person={selectedPerson}
+                     onClose={() => { setSidebarOpen(false); setIsolateActive(false); }}
+                      onIsolateToggle={setIsolateActive}
+                      isolateActive={isolateActive}
+                   triggerRef={sidebarTriggerRef}
                 />
             )}
         </div>
