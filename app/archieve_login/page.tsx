@@ -1,15 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { createClient } from '@supabase/supabase-js';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default function ArchiveLogin() {
   const router = useRouter();
@@ -18,17 +13,23 @@ export default function ArchiveLogin() {
   const [password, setPassword] = useState('');
 
   useEffect(() => {
-    // Listen for OAuth redirect return
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session?.access_token) {
-        setLoading(true);
-        try {
-          const res = await fetch(`${API_URL}/auth/oauth-login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ access_token: session.access_token })
-          });
-          
+    // Check if there is an access token in the URL hash (returned from Google OAuth)
+    const hash = window.location.hash;
+    if (hash && hash.includes('access_token=')) {
+      setLoading(true);
+      const params = new URLSearchParams(hash.substring(1));
+      const accessToken = params.get('access_token');
+
+      if (accessToken) {
+        // Clear the hash from the URL so it doesn't stay there
+        window.history.replaceState(null, '', window.location.pathname);
+
+        fetch(`${API_URL}/auth/oauth-login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ access_token: accessToken })
+        })
+        .then(async (res) => {
           if (res.ok) {
             const data = await res.json();
             // Store the signed JWT
@@ -38,36 +39,35 @@ export default function ArchiveLogin() {
           } else {
             const errorData = await res.json().catch(() => ({}));
             alert(errorData.message || "Access Denied. You must request access first.");
-            // Immediately sign out from Supabase to prevent them from being stuck logged in
-            await supabase.auth.signOut();
             setLoading(false);
           }
-        } catch (err) {
+        })
+        .catch(err => {
           console.error("Failed to sync oauth session", err);
           alert("A network error occurred. Please try again.");
-          await supabase.auth.signOut();
           setLoading(false);
-        }
+        });
+      } else {
+        setLoading(false);
       }
-    });
-
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
+    }
   }, [router]);
 
   const handleGoogleLogin = async () => {
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: window.location.origin + '/archieve_login'
+      const res = await fetch(`${API_URL}/auth/google-url?redirectTo=${encodeURIComponent(window.location.origin + '/archieve_login')}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.url) {
+          window.location.href = data.url;
+          return;
         }
-      });
-      if (error) throw error;
+      }
+      throw new Error("Failed to get Google login URL");
     } catch (err) {
       console.error(err);
+      alert("Failed to initiate Google login");
       setLoading(false);
     }
   };
