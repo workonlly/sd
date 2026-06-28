@@ -23,9 +23,10 @@ export default function ArchiveLogin() {
       if (accessToken) {
         
         window.history.replaceState(null, '', window.location.pathname);
-
+    
         fetch(`${API_URL}/auth/oauth-login`, {
           method: 'POST',
+  
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ access_token: accessToken })
         })
@@ -36,16 +37,19 @@ export default function ArchiveLogin() {
             localStorage.setItem('token', data.token);
             
             router.push('/canvas');
-          } else {
+           } else {
             const errorData = await res.json().catch(() => ({}));
-            alert(errorData.message || "Access Denied. You must request access first.");
-            setLoading(false);
+             alert(errorData.message || "Access Denied. You must request access first.");
+             console.log(errorData +"error is here")
+           
+             setLoading(false);
           }
-        })
-        .catch(err => {
-          console.error("Failed to sync oauth session", err);
-          alert("A network error occurred. Please try again.");
-          setLoading(false);
+        }) 
+       .catch(err => {
+            console.error("Failed to sync oauth session", err);
+                alert("A network error occurred. Please try again.");
+             console.log("error is here")
+            setLoading(false);
         });
       } else {
         setLoading(false);
@@ -54,15 +58,17 @@ export default function ArchiveLogin() {
   }, [router]);
 
   const handleGoogleLogin = async () => {
-    setLoading(true);
+         setLoading(true);
     try {
+      
       const res = await fetch(`${API_URL}/auth/google-url?redirectTo=${encodeURIComponent(window.location.origin + '/archieve_login')}`);
       if (res.ok) {
         const data = await res.json();
-        if (data.url) {
+            if (data.url) {
           window.location.href = data.url;
           return;
         }
+       
       }
       throw new Error("Failed to get Google login URL");
     } catch (err) {
@@ -79,21 +85,24 @@ export default function ArchiveLogin() {
       const res = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+          body: JSON.stringify({ email, password })
       });
       
       if (res.ok) {
         const data = await res.json();
         localStorage.setItem('token', data.token);
         router.push('/canvas');
+     
       } else {
-        const errorData = await res.json().catch(() => ({}));
-        alert(errorData.message || "Invalid email or password");
+          const errorData = await res.json().catch(() => ({}));
+          alert(errorData.message || "Invalid email or password");
         setLoading(false);
       }
     } catch (err) {
       console.error(err);
       alert("A network error occurred. Please try again.");
+      console.log("a netwrok error came inthe backend")
+      
       setLoading(false);
     }
   };
@@ -119,85 +128,90 @@ export default function ArchiveLogin() {
             <div className="absolute top-0 left-0 w-full h-1 bg-[#3b1600] rounded-t-xl"></div>
             
             <form className="space-y-8" onSubmit={handleEmailLogin}>
-              <div className="space-y-1">
-                <label className="block text-[0.6875rem] font-['Inter'] font-bold uppercase tracking-wider text-[var(--text-muted)]" htmlFor="email">
-                  Email Address
-                </label>
+                 <div className="space-y-1">
+                   <label className="block text-[0.6875rem] font-['Inter'] font-bold uppercase tracking-wider text-[var(--text-muted)]" htmlFor="email">
+                      Email Address
+               
+               
+                 </label>
                 <input 
                   className="w-full bg-[var(--surface-2)] border-0 border-b border-[var(--border-strong)] px-0 py-3 text-sm focus:ring-0 focus:border-[#182034] transition-all placeholder:text-[#c4c6cf]" 
-                  id="email" 
-                  name="email" 
-                  placeholder="lineage@archive.net" 
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  disabled={loading}
-                  required
-                />
+                    id="email" 
+                     name="email" 
+                    placeholder="lineage@archive.net" 
+                    type="email"
+                     value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                     disabled={loading}
+                    required
+                  />
               </div>
               
               <div className="space-y-1">
                 <label className="block text-[0.6875rem] font-['Inter'] font-bold uppercase tracking-wider text-[var(--text-muted)]" htmlFor="password">
                   Password
-                </label>
-                <input 
-                  className="w-full bg-[var(--surface-2)] border-0 border-b border-[var(--border-strong)] px-0 py-3 text-sm focus:ring-0 focus:border-[#182034] transition-all placeholder:text-[#c4c6cf]" 
-                  id="password" 
-                  name="password" 
+                   </label>
+                  <input 
+                     className="w-full bg-[var(--surface-2)] border-0 border-b border-[var(--border-strong)] px-0 py-3 text-sm focus:ring-0 focus:border-[#182034] transition-all placeholder:text-[#c4c6cf]" 
+                   id="password" 
+                    name="password" 
                   placeholder="••••••••" 
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  disabled={loading}
+                      type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                     disabled={loading}
                   required
                 />
               </div>
-              
+                
               <div className="pt-4 flex flex-col gap-3">
-                <button 
-                  className="w-full btn-primary py-4 px-6 font-['Inter'] text-sm tracking-tight active:scale-[0.98] flex items-center justify-center gap-2 group" 
-                  type="submit"
-                  disabled={loading}
-                >
+                  <button 
+                    className="w-full btn-primary py-4 px-6 font-['Inter'] text-sm tracking-tight active:scale-[0.98] flex items-center justify-center gap-2 group" 
+                     type="submit"
+                    disabled={loading}
+                  >
                   {loading ? 'Authenticating...' : 'Login'}
                   {!loading && <span className="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>}
-                </button>
+                  </button>
 
                 <button 
-                  type="button"
-                  onClick={handleGoogleLogin}
-                  disabled={loading}
-                  className="w-full bg-[var(--surface)] text-[var(--text-main)] py-4 px-6 font-['Inter'] text-sm tracking-tight active:scale-[0.98] flex items-center justify-center gap-3 rounded-xl hover:bg-[var(--surface-elevated)] transition-colors border border-[var(--border-strong)]" 
+                    type="button"
+                    onClick={handleGoogleLogin}
+                    disabled={loading}
+                    className="w-full bg-[var(--surface)] text-[var(--text-main)] py-4 px-6 font-['Inter'] text-sm tracking-tight active:scale-[0.98] flex items-center justify-center gap-3 rounded-xl hover:bg-[var(--surface-elevated)] transition-colors border border-[var(--border-strong)]" 
                 >
-                  <img src="https://www.google.com/favicon.ico" alt="Google" className="w-4 h-4" />
+              
+                    <img src="https://www.google.com/favicon.ico" alt="Google" className="w-4 h-4" />
                   {loading ? 'Redirecting...' : ' Google'}
-                </button>
+                  </button>
               </div>
             </form>
             
             <div className="mt-10  border-t border-[var(--border)]/10 flex flex-col items-center gap-4">
-              <Link className="text-[0.6875rem] font-['Inter'] font-bold uppercase tracking-widest text-[#f0813a] hover:text-[#3b1600] transition-colors" href="/requestform">
-                Request Access
-              </Link>
+                <Link className="text-[0.6875rem] font-['Inter'] font-bold uppercase tracking-widest text-[#f0813a] hover:text-[#3b1600] transition-colors" href="/requestform">
+                  Request Access
+                 </Link>
               
-              <Link className="text-[0.6875rem] font-['Inter'] font-bold uppercase tracking-widest text-[#f0813a] hover:text-[#3b1600] transition-colors" href="/canvas/guest">
-                Guest Login
-              </Link>
+                <Link className="text-[0.6875rem] font-['Inter'] font-bold uppercase tracking-widest text-[#f0813a] hover:text-[#3b1600] transition-colors" href="/canvas/guest">
+                   Guest Login
+                </Link>
               
-              <div className="flex items-center gap-2 opacity-40">
+                 <div className="flex items-center gap-2 opacity-40">
                 <span className="h-px w-8 bg-[#74777f]"></span>
-                <span className="material-symbols-outlined text-[10px]">shield</span>
-                <span className="h-px w-8 bg-[#74777f]"></span>
-              </div>
-            </div>
+                  <span className="material-symbols-outlined text-[10px]">shield</span>
+                  <span className="h-px w-8 bg-[#74777f]"></span>
+                 </div>
+      
+             </div>
           </div>
           
           <div className="mt-12 flex flex-col md:flex-row justify-center items-center gap-6 px-4">
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-[#00FF00] animate-pulse"></div>
+                 <div className="w-2 h-2 rounded-full bg-[#00FF00] animate-pulse"></div>
               <span className="text-[0.6875rem] font-['Inter'] uppercase tracking-widest text-[var(--text-muted)]">Server Status: Online</span>
+              </div>
+        
             </div>
-          </div>
         </div>
 
       </main>
