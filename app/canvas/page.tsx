@@ -194,7 +194,38 @@ function CanvasImpl() {
         window.addEventListener('wheel', handleWheel, { passive: false });
         return () => window.removeEventListener('wheel', handleWheel);
     }, []);
+      
+    useEffect(() => {
+        async function authetication() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                router.push('/canvas/guest');
+                return;
+            }
 
+            try {
+                const res = await fetch(`${API_URL}/`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    if (!data.is_authenticated) {
+                        router.push('/canvas/guest');
+                    }
+                } else {
+                    // Token is invalid, expired, or middleware rejected it
+                    localStorage.removeItem('token');
+                    router.push('/canvas/guest');
+                }
+            } catch (error) {
+                console.error("Authentication check failed", error);
+            }
+        }
+        authetication();
+    }, [])
     // Initial data load
     useEffect(() => {
         (async () => {
