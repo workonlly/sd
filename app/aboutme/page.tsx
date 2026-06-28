@@ -8,12 +8,12 @@ export default function About() {
   return (
     <div className="page-shell bg-[var(--background)] text-[var(--foreground)] selection:bg-[#ffdbca] selection:text-[#331200] min-h-screen">
       
-      {/* Inject Fonts and Icons directly for single-file independence */}
+      
 
      
 
       <main className="pt-24">
-        {/* Section 1: Hero - Origin Narrative */}
+        
         <section className="max-w-7xl mx-auto px-8 py-20 md:py-32 animate-fade-in-up stagger-1">
           <div className="grid md:grid-cols-12 gap-16 items-center">
             <div className="md:col-span-7 space-y-8 animate-fade-in-left stagger-1">
@@ -46,24 +46,24 @@ export default function About() {
                   sizes="(max-width: 768px) 100vw, 40vw"
                 />
               </div>
-              {/* Tonal Layering Accent */}
+              
               <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-[#ffb68e]/30 -z-10 rounded-full blur-3xl"></div>
             </div>
           </div>
         </section>
 
-        {/* Section 2: The 500-Year Archive Project */}
+        
         <section className="bg-[var(--surface)] py-32 animate-fade-in-up stagger-2">
           <div className="max-w-5xl mx-auto px-8">
             <div className="flex flex-col gap-16 items-center">
-              {/* Text Content */}
+              
               <div className="w-full text-center space-y-8 animate-fade-in-up stagger-2 max-w-3xl">
                 <h2 className="text-[var(--text-main)] text-4xl md:text-[2.75rem] font-bold tracking-tight">Architecting the Past.</h2>
                 <p className="text-[var(--text-muted)] text-lg leading-[1.7]">
                   What started as a personal inquiry grew into the Independent Archival Research Project. Over three years, I architected a verified lineage database of over 3,100 individuals, navigating the complexities of 500 years of historical data.
                 </p>
                 
-                {/* Stats Grid */}
+                
                 <div className="grid grid-cols-2 gap-8 pt-6 max-w-sm mx-auto">
                   <div className="space-y-2 p-4 rounded-lg bg-[var(--background)]/50 backdrop-blur-sm border border-[var(--border)]">
                     <div className="text-3xl font-bold text-[#f0813a] tracking-tighter">3,100+</div>
@@ -76,7 +76,7 @@ export default function About() {
                 </div>
               </div>
 
-              {/* Centered Image */}
+              
               <div className="w-full max-w-md animate-fade-in-up stagger-3">
                 <div className="aspect-[3/4] bg-[#182034] rounded-xl overflow-hidden shadow-xl border-t-4 border-[#f0813a] relative hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
                   <Image
@@ -92,7 +92,7 @@ export default function About() {
           </div>
         </section>
 
-        {/* Section 3: The Ethos (Off the Desk) */}
+        
         <section className="py-32 bg-[var(--background)]">
           <div className="max-w-7xl mx-auto px-8">
             <div className="bg-[var(--surface-elevated)] p-12 md:p-20 rounded-2xl shadow-sm border-t-4 border-[#3b1600]">

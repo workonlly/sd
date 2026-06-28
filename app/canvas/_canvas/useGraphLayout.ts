@@ -126,7 +126,7 @@ export function useGraphLayout({ setNodes, setEdges, setLoadedCount, onSelectRef
                     currentX = freeX + 300;
                 };
 
-                // Place spouse pairs together first for horizontal clustering
+                
                 newFamilies.forEach((fam: any) => {
                     const hId = fam.husband_id;
                     const wId = fam.wife_id;
@@ -196,14 +196,14 @@ export function useGraphLayout({ setNodes, setEdges, setLoadedCount, onSelectRef
                 edgeMap.add(eId);
             };
 
-            // Marriage edges: dashed rose line (married-in)
+            
             newData.families?.forEach((fam: any) => {
                 if (fam.husband_id && fam.wife_id) {
                     addEdge(`e_m_${fam.id}`, fam.husband_id, fam.wife_id, 'right-s', 'left', '#f43f5e', '6,4');
                 }
             });
 
-            // Bloodline edges: solid heavier slate line
+            
             newData.family_children?.forEach((fc: any) => {
                 const fam = newData.families?.find((f: any) => f.id === fc.family_id);
                 const parentId = fam?.husband_id || fam?.wife_id;

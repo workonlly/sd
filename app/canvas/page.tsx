@@ -90,7 +90,7 @@ function CanvasImpl() {
 
     useEffect(() => { onSelectRef.current = handleSelect; }, [handleSelect]);
 
-    // Apply isolate mode to nodes
+    
     useEffect(() => {
         if (!selectedId) return;
 
@@ -111,7 +111,7 @@ function CanvasImpl() {
         }));
     }, [isolateActive, selectedId, edges, setNodes]);
 
-    // Mark selected node in data
+    
     useEffect(() => {
         setNodes(curr => curr.map(n => ({
             ...n,
@@ -119,7 +119,7 @@ function CanvasImpl() {
         })));
     }, [selectedId, setNodes]);
 
-    // Keyboard shortcuts
+    
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
@@ -130,7 +130,7 @@ function CanvasImpl() {
             }
 
             if (e.key === '?' && !e.ctrlKey && !e.metaKey) {
-                // CanvasControls handles ? internally
+                
             }
 
             if ((e.ctrlKey || e.metaKey) && e.key === '0') {
@@ -151,7 +151,7 @@ function CanvasImpl() {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [fitView]);
 
-    // Debounced resize handler (150ms)
+    
     useEffect(() => {
         let resizeTimer: ReturnType<typeof setTimeout>;
         const handleResize = () => {
@@ -162,7 +162,7 @@ function CanvasImpl() {
         return () => { window.removeEventListener('resize', handleResize); clearTimeout(resizeTimer); };
     }, [fitView]);
 
-    // Browser back/forward navigation
+    
     useEffect(() => {
         const handlePopState = (e: PopStateEvent) => {
             const nodeId = e.state?.nodeId;
@@ -186,7 +186,7 @@ function CanvasImpl() {
         return () => window.removeEventListener('popstate', handlePopState);
     }, [getNode, getViewport, setCenter]);
 
-    // Intercept Ctrl+wheel for canvas zoom
+    
     useEffect(() => {
         const handleWheel = (e: WheelEvent) => {
             if (e.ctrlKey || e.metaKey) e.preventDefault();
@@ -216,7 +216,7 @@ function CanvasImpl() {
                         router.push('/canvas/guest');
                     }
                 } else {
-                    // Token is invalid, expired, or middleware rejected it
+                    
                     localStorage.removeItem('token');
                     router.push('/canvas/guest');
                 }
@@ -226,7 +226,7 @@ function CanvasImpl() {
         }
         authetication();
     }, [])
-    // Initial data load
+    
     useEffect(() => {
         (async () => {
             try {
@@ -240,7 +240,7 @@ function CanvasImpl() {
 
                 mergeDataIntoGraph(data, null);
 
-                // Restore selected person from URL/session
+                
                 if (startId && data.individuals?.find((i: any) => i.id === startId)) {
                     setTimeout(() => handleSelect(startId!), 200);
                 }
@@ -261,7 +261,7 @@ function CanvasImpl() {
         >
             <NetworkToast lazyLoadError={expandError} onDismissError={() => setExpandError(null)} />
 
-            {/* Hidden ARIA live region for screen readers */}
+            
             <div aria-live="polite" className="sr-only" role="status">
                 {selectedPerson ? `Selected: ${selectedPerson.label}` : 'Family archive canvas'}
             </div>
@@ -296,7 +296,7 @@ function CanvasImpl() {
                 </ErrorBoundary>
             )}
 
-            {/* Top-left nav */}
+            
             <nav className="absolute top-5 left-5 z-50 flex items-center gap-2 canvas-nav canvas-no-print">
                 <button
                     onClick={() => { localStorage.removeItem('token'); router.push('/'); }}
@@ -316,7 +316,7 @@ function CanvasImpl() {
                 )}
             </nav>
 
-            {/* Sidebar */}
+            
             {sidebarOpen && selectedPerson && (
                 <Sidebar
                     person={selectedPerson}

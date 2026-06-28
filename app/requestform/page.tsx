@@ -51,10 +51,10 @@ export default function ArchiveSignup() {
   return (
     <div className="page-shell bg-[var(--background)] font-['Inter'] text-[var(--foreground)] antialiased min-h-screen">
       
-      {/* Inject Fonts, Icons, and Custom Utilities directly for single-file independence */}
+      
 
       <main className="min-h-screen flex flex-col items-center justify-between relative overflow-hidden pt-16 md:pt-24 pb-12">
-        {/* Background Half-color */}
+        
         <div className="absolute top-0 left-0 w-full h-1/2 bg-[var(--surface)] -z-10"></div>
         
         <div className="w-full max-w-md mt-8 px-6">

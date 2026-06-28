@@ -7,9 +7,9 @@ export default function ArchiveDashboard() {
   return (
     <div className="page-shell bg-[var(--background)] text-[var(--foreground)] antialiased flex min-h-screen">
       
-      {/* Inject Fonts and Icons directly for single-file independence */}
+      
 
-      {/* SideNavBar */}
+      
       <aside className="bg-slate-100 dark:bg-slate-950 h-screen w-64 fixed left-0 top-0 border-r-0 flex flex-col p-6 space-y-8 z-50">
         <div>
           <div className="text-lg font-black uppercase tracking-widest text-slate-900 dark:text-white mb-1">Private Archive</div>
@@ -23,9 +23,9 @@ export default function ArchiveDashboard() {
         </div>
       </aside>
 
-      {/* Main Content Area */}
+      
       <main className="ms-64 flex-1 min-h-screen bg-[var(--background)] flex flex-col">
-        {/* TopAppBar Updated from Shared Component */}
+        
         <header className="bg-[var(--background)]/80 dark:bg-[#182034]/80 backdrop-blur-md fixed top-0 w-full z-40 border-b border-[#f2f4f6]/10 shadow-sm dark:shadow-none left-0 ps-64">
           <div className="flex items-center justify-between px-8 py-4 max-w-[1440px] mx-auto">
             <div className="text-xl font-bold tracking-tighter text-[var(--text-main)] dark:text-[#f7f9fb]">Areeb Uzzaman</div>
@@ -49,9 +49,9 @@ export default function ArchiveDashboard() {
           </div>
         </header>
 
-        {/* Content Canvas */}
+        
         <div className="p-12 pt-28 space-y-12 max-w-7xl mx-auto w-full">
-          {/* Hero Announcement Section: Asymmetric Layout */}
+          
           <section className="grid grid-cols-12 gap-8 items-center bg-[#182034] text-[#ffffff] p-12 rounded-xl relative overflow-hidden">
             <div className="col-span-12 md:col-span-7 z-10">
               <span className="inline-block px-3 py-1 bg-[#ffdbca] text-[#331200] text-[0.6875rem] font-bold tracking-widest uppercase mb-6 rounded-sm">Featured Volume</span>
@@ -69,7 +69,7 @@ export default function ArchiveDashboard() {
             <div className="absolute right-0 top-0 bottom-0 w-1/3 opacity-20 pointer-events-none">
               <div className="h-full w-full bg-gradient-to-l from-[#2e354a] to-transparent"></div>
             </div>
-            {/* Decorative Image */}
+            
             <div className="col-span-12 md:col-span-5 relative h-64 md:h-full min-h-[300px]">
               <Image
                 alt="Close-up of a high-end leather-bound historical book with gold leaf lettering resting on a dark walnut library table" 
@@ -81,7 +81,7 @@ export default function ArchiveDashboard() {
             </div>
           </section>
 
-          {/* Database Interface */}
+          
           <section className="space-y-8">
             <div className="flex justify-between items-end border-b border-[var(--border)] pb-6">
               <div>
@@ -104,7 +104,7 @@ export default function ArchiveDashboard() {
               </div>
             </div>
 
-            {/* Tonal Layering Table (No Borders) */}
+            
             <div className="bg-[var(--surface-elevated)] rounded-xl overflow-hidden shadow-sm">
               <table className="w-full text-left border-collapse">
                 <thead>
@@ -117,7 +117,7 @@ export default function ArchiveDashboard() {
                   </tr>
                 </thead>
                 <tbody className="text-sm font-medium">
-                  {/* Row 1 */}
+                  
                   <tr className="hover:bg-[var(--surface)] transition-colors group">
                     <td className="px-8 py-6">
                       <div className="flex flex-col">
@@ -137,7 +137,7 @@ export default function ArchiveDashboard() {
                     </td>
                   </tr>
                   
-                  {/* Row 2 */}
+                  
                   <tr className="hover:bg-[var(--surface)] transition-colors group">
                     <td className="px-8 py-6 border-t border-[#f2f4f6]">
                       <div className="flex flex-col">
@@ -157,7 +157,7 @@ export default function ArchiveDashboard() {
                     </td>
                   </tr>
 
-                  {/* Row 3 */}
+                  
                   <tr className="hover:bg-[var(--surface)] transition-colors group">
                     <td className="px-8 py-6 border-t border-[#f2f4f6]">
                       <div className="flex flex-col">
@@ -181,7 +181,7 @@ export default function ArchiveDashboard() {
             </div>
           </section>
 
-          {/* Quick Access / Insights Bento Grid */}
+          
           <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="p-8 bg-[var(--surface)] rounded-xl space-y-4">
               <span className="material-symbols-outlined text-[var(--text-main)]">verified_user</span>

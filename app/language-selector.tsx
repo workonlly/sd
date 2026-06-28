@@ -35,7 +35,7 @@ export default function LanguageSelector() {
 
   useEffect(() => {
     setReady(true);
-    // Load saved language preference
+    
     const savedLang = localStorage.getItem("language") as Language | null;
     if (savedLang && LANGUAGES[savedLang]) {
       setCurrentLang(savedLang);
@@ -48,7 +48,7 @@ export default function LanguageSelector() {
   }
 
   function applyLanguage(lang: Language) {
-    // Map custom language codes to Google Translate codes
+    
     const langMap: Record<Language, string> = {
       en: "en",
       bn: "bn",
@@ -59,7 +59,7 @@ export default function LanguageSelector() {
       fa: "fa",
       nl: "nl",
       fr: "fr",
-      od: "or", // Odia is 'or' in Google Translate
+      od: "or", 
     };
 
     const googleLangCode = langMap[lang];
@@ -68,14 +68,14 @@ export default function LanguageSelector() {
     setTranslateCookie(cookieValue);
     document.documentElement.lang = googleLangCode;
 
-    // If Google combo exists, trigger it too for immediate switch on current page
+    
     const googleElem = document.querySelector(".goog-te-combo") as HTMLSelectElement | null;
     if (googleElem) {
       googleElem.value = googleLangCode;
       googleElem.dispatchEvent(new Event("change", { bubbles: true }));
     }
 
-    // Reload guarantees full-route translation consistency.
+    
     window.location.reload();
   }
 

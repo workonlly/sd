@@ -67,7 +67,7 @@ export default function Experience() {
     <div className="bg-[var(--background)] text-[var(--foreground)] selection:bg-[#ffdbca] selection:text-[#331200] min-h-screen">
 
       <main className="max-w-7xl mx-auto px-8 py-24">
-        {/* Header */}
+        
         <header className="mb-24 animate-fade-in-up">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
             <div>
@@ -81,13 +81,13 @@ export default function Experience() {
           </div>
         </header>
 
-        {/* Timeline Section */}
+        
         <section className="space-y-20 relative mb-32 pl-12">
           <div className="absolute left-[11px] top-0 bottom-0 w-[2px] bg-[#f0813a] opacity-60"></div>
           
           {experiences.map((exp, idx) => (
             <div key={idx} className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start group relative" style={{ animationDelay: `${idx * 0.1}s` }}>
-              {/* Timeline dot */}
+              
               <div className="absolute left-0 top-4 w-6 h-6 bg-[#f0813a] rounded-full border-4 border-[var(--background)] transform -translate-x-1/2 z-10 animate-pulse-ring"></div>
               
               {idx % 2 === 0 ? (
@@ -177,7 +177,7 @@ export default function Experience() {
           ))}
         </section>
 
-        {/* Endorsements Section */}
+        
         <section className="mt-32">
           <div className="flex flex-col items-center text-center mb-16">
             <p className="text-[#f0813a] font-bold tracking-widest text-[0.6875rem] uppercase mb-4">PROFESSIONAL ENDORSEMENTS</p>
@@ -202,7 +202,7 @@ export default function Experience() {
           </p>
         </section>
 
-        {/* Call to Action */}
+        
         <section className="mt-32 pt-24 border-t border-[var(--border)]/10 flex flex-col items-center text-center">
           <h2 className="text-3xl font-extrabold text-[var(--text-main)] tracking-tighter mb-6">Comprehensive Background</h2>
           <p className="text-[var(--text-muted)] max-w-xl mb-10 leading-relaxed">

@@ -137,7 +137,7 @@ function ArchivesTab({ person }: { person: PersonData }) {
                     try {
                         parsedItem = JSON.parse(docItem);
                     } catch (e) {
-                        // ignore
+                        
                     }
                 }
                 const isObject = typeof parsedItem === 'object' && parsedItem !== null;
@@ -179,7 +179,7 @@ export default function Sidebar({ person, onClose, onIsolateToggle, isolateActiv
     const touchStartX = useRef(0);
     const firstFocusRef = useRef<HTMLButtonElement | null>(null);
 
-    // Update browser tab title
+    
     useEffect(() => {
         if (person?.label) {
             document.title = `Viewing: ${person.label} | Family Archive`;
@@ -187,13 +187,13 @@ export default function Sidebar({ person, onClose, onIsolateToggle, isolateActiv
         return () => { document.title = 'Family Archive'; };
     }, [person?.label]);
 
-    // Restore focus on unmount
+    
     useEffect(() => {
         const saved = triggerRef?.current;
         return () => { saved?.focus(); };
     }, [triggerRef]);
 
-    // Auto-focus first interactive element when opening
+    
     useEffect(() => {
         firstFocusRef.current?.focus();
     }, []);
@@ -242,7 +242,7 @@ export default function Sidebar({ person, onClose, onIsolateToggle, isolateActiv
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
             >
-                {/* Header */}
+                
                 <div className="px-5 mt-25 pb-4 border-b border-slate-100 shrink-0">
                     <div className="flex items-start justify-between gap-3">
                         {thumbnailUrl && (
@@ -271,7 +271,7 @@ export default function Sidebar({ person, onClose, onIsolateToggle, isolateActiv
                         </button>
                     </div>
 
-                    {/* Action buttons */}
+                    
                     <div className="flex items-center gap-2 mt-4">
                         <button
                             onClick={handleCopyLink}
@@ -302,7 +302,7 @@ export default function Sidebar({ person, onClose, onIsolateToggle, isolateActiv
                     </div>
                 </div>
 
-                {/* Sticky tab navigation */}
+                
                 <div className="flex border-b border-slate-100 shrink-0 sticky top-0 bg-white z-10">
                     {tabs.map(tab => (
                         <button
@@ -321,7 +321,7 @@ export default function Sidebar({ person, onClose, onIsolateToggle, isolateActiv
                     ))}
                 </div>
 
-                {/* Tab content — thin custom scrollbar via CSS class */}
+                
                 <div className="flex-1 overflow-y-auto canvas-sidebar-scroll" role="tabpanel">
                     {activeTab === 'personal' && <PersonalTab person={person} />}
                     {activeTab === 'archives' && <ArchivesTab person={person} />}

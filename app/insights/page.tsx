@@ -8,12 +8,12 @@ export default function Insights() {
   return (
     <div className="page-shell bg-[var(--background)] text-[var(--foreground)] min-h-screen">
       
-      {/* Inject Fonts and Icons directly for single-file independence */}
+      
 
     
 
       <main className="pt-32 pb-24 px-8 max-w-7xl mx-auto">
-        {/* Editorial Header Section */}
+        
         <header className="mb-24 animate-fade-in-up stagger-1">
           <div className="asymmetric-grid items-end">
             <div>
@@ -28,10 +28,10 @@ export default function Insights() {
           </div>
         </header>
 
-        {/* Featured Insights: Tonal Layering */}
+        
         <section className="mb-24 animate-fade-in-up stagger-2">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Article Card 1 */}
+            
             <article className="group bg-[var(--surface-elevated)] flex flex-col h-full border-t-4 border-[#3b1600] p-8 article-card hover:bg-[var(--surface)] animate-fade-in-left stagger-2">
               <div className="flex justify-between items-start mb-6">
                 <span className="bg-[#d5e3fd] text-[#57657b] px-3 py-1 text-[0.6875rem] font-bold uppercase tracking-wider rounded">Housing Policy</span>
@@ -46,7 +46,7 @@ export default function Insights() {
               </Link>
             </article>
 
-            {/* Article Card 2 */}
+            
             <article className="group bg-[var(--surface-elevated)] flex flex-col h-full border-t-4 border-[#f0813a] p-8 article-card hover:bg-[var(--surface)] animate-fade-in-up stagger-2">
               <div className="flex justify-between items-start mb-6">
                 <span className="bg-[#ffb68e] text-[#763300] px-3 py-1 text-[0.6875rem] font-bold uppercase tracking-wider rounded">Public Health</span>
@@ -61,7 +61,7 @@ export default function Insights() {
               </Link>
             </article>
 
-            {/* Article Card 3 */}
+            
             <article className="group bg-[var(--surface-elevated)] flex flex-col h-full border-t-4 border-[#182034] p-8 article-card hover:bg-[var(--surface)] animate-fade-in-right stagger-2">
               <div className="flex justify-between items-start mb-6">
                 <span className="bg-[#d5e3fd] text-[#57657b] px-3 py-1 text-[0.6875rem] font-bold uppercase tracking-wider rounded">AI Governance</span>
@@ -78,7 +78,7 @@ export default function Insights() {
           </div>
         </section>
 
-        {/* Newsletter / Subscribe Section: Glassmorphism + Tonal Shift */}
+        
         <section className="bg-[var(--surface)] p-12 md:p-20 relative overflow-hidden animate-fade-in-up stagger-3">
           <div className="absolute top-0 right-0 w-1/2 h-full pointer-events-none opacity-30">
             <Image alt="Areeb Uzzaman" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/ADBb0uihthbNiOtDY3BzVd_vF3L0dmKQ0YpW-Cg3zTtv3ohwrw3S8tAjPEmdSFF_pX2FiNUKtIr5s9zb_Y-N19XVfjnuUq2n6dP_u6rc1RDtavo9YPnPDFjkteii_NJHq5My_UXH_PWK8LXZweFx5ebG6RcfclzqveuLeZHNHpjDCx3HiBNgF-8GZEgBpvea8nBmvCg3_woiQkx1PUo7ZP1MMIcVOZJ40-RAVzJnVSGqpj6GO6w_hxoquyjqDt9pA3iwh4sE4q2yi3JcXgw" fill sizes="(max-width: 768px) 0vw, 40vw" />
@@ -90,7 +90,7 @@ export default function Insights() {
           </div>
         </section>
 
-        {/* Archive List: Content defined by tonal shift, no lines */}
+        
         <section className="mt-24 animate-fade-in-up stagger-3">
           <h4 className="text-[var(--text-main)] text-sm font-bold uppercase tracking-widest mb-12 flex items-center gap-4">
             Prior Publications

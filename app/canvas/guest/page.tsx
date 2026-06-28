@@ -86,7 +86,7 @@ function CanvasImpl() {
 
     useEffect(() => { onSelectRef.current = handleSelect; }, [handleSelect]);
 
-    // Apply isolate mode to nodes
+    
     useEffect(() => {
         if (!selectedId) return;
 
@@ -106,7 +106,7 @@ function CanvasImpl() {
         }));
     }, [isolateActive, selectedId, edges, setNodes]);
 
-    // Mark selected node
+    
     useEffect(() => {
         setNodes(curr => curr.map(n => ({
             ...n,
@@ -114,7 +114,7 @@ function CanvasImpl() {
         })));
     }, [selectedId, setNodes]);
 
-    // Keyboard shortcuts
+    
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
@@ -133,7 +133,7 @@ function CanvasImpl() {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [fitView]);
 
-    // Debounced resize handler
+    
     useEffect(() => {
         let timer: ReturnType<typeof setTimeout>;
         const handleResize = () => {
@@ -144,7 +144,7 @@ function CanvasImpl() {
         return () => { window.removeEventListener('resize', handleResize); clearTimeout(timer); };
     }, [fitView]);
 
-    // Intercept browser Ctrl+wheel
+    
     useEffect(() => {
         const handleWheel = (e: WheelEvent) => {
             if (e.ctrlKey || e.metaKey) e.preventDefault();
@@ -153,7 +153,7 @@ function CanvasImpl() {
         return () => window.removeEventListener('wheel', handleWheel);
     }, []);
 
-    // Initial data load
+    
     useEffect(() => {
         (async () => {
             try {
@@ -166,7 +166,7 @@ function CanvasImpl() {
                     setStartPersonName(`${rootInd.given_names || ''} ${rootInd.surname || ''}`.trim());
                 }
 
-                // Privacy filter: Hide people under 80 years old
+                
                 const currentYear = new Date().getFullYear();
                 if (data.individuals) {
                     data.individuals = data.individuals.filter((ind: any) => {
@@ -195,7 +195,7 @@ function CanvasImpl() {
         >
             <NetworkToast lazyLoadError={expandError} onDismissError={() => setExpandError(null)} />
 
-            {/* Hidden ARIA live region */}
+            
             <div aria-live="polite" className="sr-only" role="status">
                 {selectedPerson ? `Selected: ${selectedPerson.label}` : 'Family archive canvas'}
             </div>
@@ -230,7 +230,7 @@ function CanvasImpl() {
                 </ErrorBoundary>
             )}
 
-            {/* Top-left nav */}
+            
             <nav className="absolute top-5 left-5 z-50 flex items-center gap-2 canvas-nav canvas-no-print">
                 <button
                     onClick={() => router.push('/')}
@@ -245,7 +245,7 @@ function CanvasImpl() {
             </nav>
 
 
-            {/* Sidebar */}
+            
             {sidebarOpen && selectedPerson && (
                 <Sidebar
                     person={selectedPerson}

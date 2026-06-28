@@ -13,7 +13,7 @@ export default function ArchiveLogin() {
   const [password, setPassword] = useState('');
 
   useEffect(() => {
-    // Check if there is an access token in the URL hash (returned from Google OAuth)
+    
     const hash = window.location.hash;
     if (hash && hash.includes('access_token=')) {
       setLoading(true);
@@ -21,7 +21,7 @@ export default function ArchiveLogin() {
       const accessToken = params.get('access_token');
 
       if (accessToken) {
-        // Clear the hash from the URL so it doesn't stay there
+        
         window.history.replaceState(null, '', window.location.pathname);
 
         fetch(`${API_URL}/auth/oauth-login`, {
@@ -32,9 +32,9 @@ export default function ArchiveLogin() {
         .then(async (res) => {
           if (res.ok) {
             const data = await res.json();
-            // Store the signed JWT
+            
             localStorage.setItem('token', data.token);
-            // Redirect to canvas
+            
             router.push('/canvas');
           } else {
             const errorData = await res.json().catch(() => ({}));
@@ -101,12 +101,12 @@ export default function ArchiveLogin() {
   return (
     <div className="page-shell bg-[var(--background)] font-['Inter'] text-[var(--foreground)] antialiased min-h-screen">
       
-      {/* Inject Fonts, Icons, and Custom Utilities directly for single-file independence */}
+      
 
      
 
       <main className="min-h-screen flex flex-col items-center justify-between relative overflow-hidden pt-24">
-        {/* Background Half-color */}
+        
         <div className="absolute top-0 left-0 w-full h-1/2 bg-[var(--surface)] -z-10"></div>
         
         <div className="w-full max-w-md mt-16 px-6">

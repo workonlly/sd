@@ -8,7 +8,7 @@ export default function Contact() {
     <div className="page-shell bg-[var(--background)] text-[var(--foreground)] selection:bg-[#ffdbca] selection:text-[#331200] min-h-screen">
 
       <main className="pt-32 pb-24 px-8 max-w-4xl mx-auto">
-        {/* Header */}
+        
         <section className="mb-20 text-center animate-fade-in-up stagger-1">
           <h1 className="text-4xl md:text-5xl font-extrabold text-[var(--text-main)] mb-6 tracking-tight">
             Let's Work Together
@@ -18,13 +18,11 @@ export default function Contact() {
           </p>
         </section>
 
-        {/* Contact Form */}
         <section className="premium-card bg-[var(--surface-elevated)] p-12 rounded-2xl shadow-lg border border-[var(--border)] mb-20 animate-scale-in stagger-2">
           <h2 className="text-2xl font-bold text-[var(--text-main)] mb-8">Send a Message</h2>
           <ContactForm variant="full" />
         </section>
 
-        {/* Additional Contact Info */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="premium-card bg-[var(--surface)] p-8 rounded-xl border-t-4 border-[#f0813a] animate-fade-in-up stagger-1 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
             <span className="material-symbols-outlined text-[#f0813a] text-3xl mb-4 block">mail</span>

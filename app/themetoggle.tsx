@@ -23,7 +23,7 @@ export default function ThemeToggle() {
       return;
     }
 
-    // Default to light mode for better readability
+    
     const initialTheme: Theme = "light";
     setTheme(initialTheme);
     applyTheme(initialTheme);
