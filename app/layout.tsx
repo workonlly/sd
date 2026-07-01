@@ -7,7 +7,6 @@ import LanguageSelector from "./language-selector";
 import Script from "next/script";
 import AmbientGlow from "./ambient-glow";
 import MobileMenu from "./mobile-menu";
-import OAuthRedirectHandler from "./oauth-handler";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,22 +43,21 @@ export default function RootLayout({
       <head>
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
       </head>
-      <body className="min-h-full flex flex-col pt-2 relative"> 
-        <OAuthRedirectHandler />
+      <body className="min-h-full flex flex-col pt-2 relative">
         <AmbientGlow />
-        
-        
+
+
         <header className="fixed top-0 z-50 w-full bg-[var(--surface-elevated)]/80 backdrop-blur-xl border-b border-[var(--text-main)]/5 shadow-[0_4px_30px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_30px_rgba(0,0,0,0.2)] transition-all duration-500">
           <nav className="flex justify-between items-center w-full px-8 py-5 max-w-7xl mx-auto font-medium tracking-tight">
-            
-            
+
+
             <Link href="/" className="group relative z-10">
               <div className="text-xl font-extrabold tracking-tighter text-[var(--text-main)] transition-transform duration-300 group-hover:scale-[1.02]">
                 Areeb Uzzaman
               </div>
             </Link>
 
-            
+
             <div className="hidden md:flex gap-8 items-center">
               {[
                 { name: 'Home', path: '/' },
@@ -68,27 +66,27 @@ export default function RootLayout({
                 { name: 'Insights', path: '/insights' },
                 { name: 'Experience', path: '/experience' }
               ].map((link) => (
-                <Link 
-                  key={link.name} 
+                <Link
+                  key={link.name}
                   href={link.path}
                   className="group relative text-sm font-semibold text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors duration-300 py-2"
                 >
                   {link.name}
-                  
+
                   <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-[var(--text-main)] rounded-full transition-all duration-300 ease-out group-hover:w-full opacity-0 group-hover:opacity-100"></span>
                 </Link>
               ))}
-              
-              <div className="h-5 w-px bg-[var(--text-main)]/20 mx-2"></div> 
-              
+
+              <div className="h-5 w-px bg-[var(--text-main)]/20 mx-2"></div>
+
               <LanguageSelector />
               <ThemeToggle />
-              
-              <Link 
-                className="group relative ms-2 btn-primary magnetic overflow-hidden flex items-center gap-2 text-sm" 
+
+              <Link
+                className="group relative ms-2 btn-primary magnetic overflow-hidden flex items-center gap-2 text-sm"
                 href="/archieve_login"
               >
-                
+
                 <span className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></span>
                 <span className="relative z-10">Archive Login</span>
                 <span className="material-symbols-outlined text-[1.1rem] relative z-10 group-hover:translate-x-1 transition-transform duration-300">
@@ -101,12 +99,12 @@ export default function RootLayout({
           </nav>
         </header>
 
-        
+
         <main className="flex-grow flex flex-col relative z-10">
           {children}
         </main>
 
-        
+
         <footer className="bg-[var(--surface)] w-full border-t border-[var(--text-main)]/5">
           <div className="flex flex-col md:flex-row justify-between items-center px-8 md:px-24 py-12 w-full max-w-7xl mx-auto text-sm leading-relaxed text-[var(--text-main)]">
             <div className="mb-6 md:mb-0 font-medium opacity-80">
@@ -120,7 +118,7 @@ export default function RootLayout({
           </div>
         </footer>
 
-        
+
         <div id="google_translate_element" style={{ display: "none" }}></div>
         <Script
           id="google-translate-init"

@@ -3,8 +3,13 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { createClient } from '@supabase/supabase-js';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://zkcrcqerqtaznifhqdeg.supabase.co";
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "sb_publishable_eBAWxKOoUkeP74KzMsuDhQ__xpEtjQP";
+
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default function ArchiveLogin() {
   const router = useRouter();
@@ -13,61 +18,68 @@ export default function ArchiveLogin() {
   const [password, setPassword] = useState('');
 
   useEffect(() => {
-    
-    const hash = window.location.hash;
-    if (hash && hash.includes('access_token=')) {
-       
-      setLoading(true);
-          const params = new URLSearchParams(hash.substring(1));
-      const accessToken = params.get('access_token');
-
-      if (accessToken) {
+    // Listen for OAuth completion
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        setLoading(true);
+        const accessToken = session.access_token;
         
         window.history.replaceState(null, '', window.location.pathname);
 
         fetch(`${API_URL}/auth/oauth-login`, {
           method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ access_token: accessToken })
         })
           .then(async (res) => {
           if (res.ok) {
             const data = await res.json();
             
-           
+            // Save only the custom JWT
             localStorage.setItem('token', data.token);
             
-        
+            // Clean up Supabase local storage since we only want the custom JWT
+            await supabase.auth.signOut();
+            
             router.push('/canvas');
           } else {
-        
             const errorData = await res.json().catch(() => ({}));
-        
             alert(errorData.message || "Access Denied. You must request access first.");
-             console.log("Error message is"+errorData)
+            console.log("Error message is"+errorData)
             setLoading(false);
           }
         })
         .catch(err => {
           console.error("Failed to sync oauth session", err);
           alert("A network error occurred. Please try again.");
-      
           setLoading(false);
         });
-      } else {
-        setLoading(false);
       }
+    });
+    
+    // Also handle fallback for implicit hash flow if it ever returns it
+    const hash = window.location.hash;
+    if (hash && hash.includes('error=')) {
+      console.error("OAuth Error", hash);
+      alert("Google Login failed or was cancelled.");
     }
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [router]);
 
   const handleGoogleLogin = async () => {
-         setLoading(true);
+    setLoading(true);
     try {
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://zkcrcqerqtaznifhqdeg.supabase.co";
-      const redirectTo = encodeURIComponent(window.location.origin + '/archieve_login');
-      
-      // Directly initiate the Supabase OAuth flow to prevent PKCE state mismatch errors
-      window.location.href = `${supabaseUrl}/auth/v1/authorize?provider=google&redirect_to=${redirectTo}`;
+      const redirectTo = window.location.origin + '/archieve_login';
+      // Secure frontend PKCE flow
+      await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: redirectTo
+        }
+      });
     } catch (err) {
       console.error(err);
       alert("Failed to initiate Google login");
