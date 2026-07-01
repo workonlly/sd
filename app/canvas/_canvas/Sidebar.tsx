@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -128,6 +129,65 @@ function WorksTab({ personId }: { personId: string }) {
 }
 
 function ArchivesTab({ person }: { person: PersonData }) {
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+
+    useEffect(() => {
+        const verifyToken = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                setIsAuthenticated(false);
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    setIsAuthenticated(!!data.is_authenticated);
+                } else {
+                    localStorage.removeItem('token');
+                    setIsAuthenticated(false);
+                }
+            } catch (err) {
+                console.error("Token verification failed", err);
+                setIsAuthenticated(false);
+            }
+        };
+
+        verifyToken();
+    }, []);
+
+    if (isAuthenticated === null) {
+        return <div className="p-5 text-sm text-slate-500">Checking access...</div>;
+    }
+
+    if (!isAuthenticated) {
+        return (
+            <div className="p-8 text-center flex flex-col items-center justify-center space-y-4">
+                <div className="w-12 h-12 bg-indigo-50 rounded-full flex items-center justify-center mb-2">
+                    <svg className="w-6 h-6 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                </div>
+                <h3 className="text-base font-bold text-slate-800">Restricted Access</h3>
+                <p className="text-sm text-slate-500 leading-relaxed max-w-xs mx-auto">
+                    Historical documents and archives are restricted to un-authorized family members.
+                </p>
+                <Link 
+                    href="/archieve_login"
+                    className="inline-flex items-center justify-center px-5 py-2.5 bg-indigo-600 text-white text-sm font-semibold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm mt-2"
+                >
+                    Login to View Archives
+                </Link>
+            </div>
+        );
+    }
+
     const docs = Array.isArray(person.relativelinks) ? person.relativelinks : [];
 
     if (docs.length === 0) return <EmptyState label="No historical documents found for this individual." />;

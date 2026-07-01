@@ -228,26 +228,19 @@ function CanvasImpl() {
             )}
 
             
-            <nav className="absolute top-5 left-5 z-50 flex items-center gap-2 canvas-nav canvas-no-print">
+            <nav className="absolute top-30 left-6 z-[9999] flex items-center gap-2 canvas-nav canvas-no-print">
                 <button
                     onClick={() => { localStorage.removeItem('token'); router.push('/'); }}
-                     className="flex items-center gap-2 px-4 py-2.5 bg-white rounded-xl shadow-md hover:shadow-lg border border-slate-200 transition-all group min-h-[44px]"
-                       aria-label="Go to home and log out"
+                    className="flex items-center gap-2 px-4 py-2.5 bg-white rounded-xl shadow-md hover:shadow-lg border border-slate-200 transition-all group min-h-[44px]"
+                    aria-label="Log out and return to home"
                 >
-                  
-                    <svg className="w-4 h-4 text-slate-500 group-hover:-translate-y-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    <svg className="w-4 h-4 text-slate-500 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                     </svg>
-                    
-                    <span className="text-sm font-semibold text-slate-700">Home</span>
-                
+                    <span className="text-sm font-semibold text-slate-700">Logout</span>
                 </button>
 
-                {loadedCount > 0 && (
-                      <div className="px-3 py-2 bg-white rounded-xl shadow-sm border border-slate-200 text-xs font-semibold text-slate-500">
-                           <span className="text-indigo-600 font-bold">{loadedCount}</span> nodes
-                     </div>
-                )}
+                
             </nav>
 
             
