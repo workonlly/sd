@@ -7,6 +7,7 @@ import LanguageSelector from "./language-selector";
 import Script from "next/script";
 import AmbientGlow from "./ambient-glow";
 import MobileMenu from "./mobile-menu";
+import OAuthRedirectHandler from "./oauth-handler";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,6 +45,7 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
       </head>
       <body className="min-h-full flex flex-col pt-2 relative"> 
+        <OAuthRedirectHandler />
         <AmbientGlow />
         
         
