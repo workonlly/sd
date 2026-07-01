@@ -63,18 +63,11 @@ export default function ArchiveLogin() {
   const handleGoogleLogin = async () => {
          setLoading(true);
     try {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://zkcrcqerqtaznifhqdeg.supabase.co";
+      const redirectTo = encodeURIComponent(window.location.origin + '/archieve_login');
       
-      const res = await fetch(`${API_URL}/auth/google-url?redirectTo=${encodeURIComponent(window.location.origin + '/archieve_login')}`);
-      
-      if (res.ok) {
-        const data = await res.json();
-            if (data.url) {
-          window.location.href = data.url;
-          return;
-        }
-       
-      }
-      throw new Error("Failed to get Google login URL");
+      // Directly initiate the Supabase OAuth flow to prevent PKCE state mismatch errors
+      window.location.href = `${supabaseUrl}/auth/v1/authorize?provider=google&redirect_to=${redirectTo}`;
     } catch (err) {
       console.error(err);
       alert("Failed to initiate Google login");
