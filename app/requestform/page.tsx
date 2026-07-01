@@ -1,7 +1,7 @@
 'use client';
 import {useState, useEffect, FormEvent} from 'react';
 import Link from 'next/link';
-const APIURL= process.env.NEXT_PUBLIC_APIURL || "http://localhost:4000";
+const APIURL= process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function ArchiveSignup() {
   const [name,setName]= useState("");
