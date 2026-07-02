@@ -448,9 +448,9 @@ h3,
 }
 
 
-.react-flow__controls {
+/* .react-flow__controls {
   display: none; 
-}
+} */
 
 
 @media (prefers-reduced-motion: reduce) {

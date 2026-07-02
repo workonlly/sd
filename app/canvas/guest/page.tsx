@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useCallback, useRef } from 'react';
-import {ReactFlow,MiniMap,Background,BackgroundVariant,useNodesState,useEdgesState,useReactFlow,useViewport,ReactFlowProvider,type Node,type Edge,} from '@xyflow/react';
+import {ReactFlow,MiniMap,Background,BackgroundVariant,useNodesState,useEdgesState,useReactFlow,useViewport,ReactFlowProvider,type Node,type Edge,Controls} from '@xyflow/react';
 
 import '@xyflow/react/dist/style.css';
 import '../../globals.css';
@@ -200,6 +200,7 @@ function CanvasImpl() {
                             position="bottom-left"
                    
                    />
+                        <Controls position="bottom-right" className="bg-white shadow-md border border-slate-200 rounded-lg overflow-hidden" />
                     </ReactFlow>
                 </ErrorBoundary>
             )}
