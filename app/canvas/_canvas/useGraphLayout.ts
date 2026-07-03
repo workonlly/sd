@@ -114,7 +114,7 @@ export function useGraphLayout({ setNodes, setEdges, setLoadedCount, onSelectRef
             const occupiedXByY = new Map<number, number[]>();
 
             placedPositions.current.forEach(pos => {
-                const yBucket = Math.round(pos.y / 260);
+                const yBucket = Math.round(pos.y / 350);
                 if (!occupiedXByY.has(yBucket)) occupiedXByY.set(yBucket, []);
                 occupiedXByY.get(yBucket)!.push(pos.x);
             });
@@ -123,7 +123,7 @@ export function useGraphLayout({ setNodes, setEdges, setLoadedCount, onSelectRef
                 const taken = new Set(occupiedXByY.get(yBucket) || []);
                 let x = startX;
 
-                while ([...taken].some(tx => Math.abs(tx - x) < 300)) x += 300;
+                while ([...taken].some(tx => Math.abs(tx - x) < 400)) x += 400;
                 if (!occupiedXByY.has(yBucket)) occupiedXByY.set(yBucket, []);
                 occupiedXByY.get(yBucket)!.push(x);
                 return x;
@@ -132,17 +132,17 @@ export function useGraphLayout({ setNodes, setEdges, setLoadedCount, onSelectRef
             const sortedLevels = Array.from(newLevelGroups.keys()).sort((a, b) => a - b);
             sortedLevels.forEach(lvl => {
                 const nodesHere = newLevelGroups.get(lvl)!;
-                const absY = anchorPos.y + lvl * 260;
-                const yBucket = Math.round(absY / 260);
+                const absY = anchorPos.y + lvl * 350;
+                const yBucket = Math.round(absY / 350);
                 const placed = new Set<string>();
-                let currentX = anchorPos.x - (nodesHere.length * 300) / 2;
+                let currentX = anchorPos.x - (nodesHere.length * 400) / 2;
 
                 const placeNode = (id: string) => {
                     if (placed.has(id) || placedPositions.current.has(id)) return;
                     const freeX = findFreeX(yBucket, currentX);
                     placedPositions.current.set(id, { x: freeX, y: absY });
                     placed.add(id);
-                    currentX = freeX + 300;
+                    currentX = freeX + 400;
                 };
 
 
@@ -194,6 +194,39 @@ export function useGraphLayout({ setNodes, setEdges, setLoadedCount, onSelectRef
                 });
             });
 
+            const familyNodesToAdd: Node[] = [];
+            newFamilies.forEach((fam: any) => {
+                const fId = `fam_${fam.id}`;
+                if (!existingById.has(fId)) {
+                    let fx = 0;
+                    let fy = 0;
+                    const hId = fam.husband_id;
+                    const wId = fam.wife_id;
+                    const hPos = placedPositions.current.get(hId) || existingById.get(hId)?.position;
+                    const wPos = placedPositions.current.get(wId) || existingById.get(wId)?.position;
+                    
+                    if (hPos && wPos) {
+                        fx = (hPos.x + wPos.x) / 2 + 90; // center between parents
+                        fy = hPos.y + 130;
+                    } else if (hPos) {
+                        fx = hPos.x + 90;
+                        fy = hPos.y + 240;
+                    } else if (wPos) {
+                        fx = wPos.x + 90;
+                        fy = wPos.y + 240;
+                    }
+                    
+                    familyNodesToAdd.push({
+                        id: fId,
+                        type: 'familyNode',
+                        position: { x: fx, y: fy },
+                        data: {},
+                        draggable: true
+                    });
+                }
+            });
+            resultNodes.push(...familyNodesToAdd);
+
             setLoadedCount(() => resultNodes.filter(n => n.type === 'personNode').length);
             return resultNodes;
         });
@@ -224,19 +257,18 @@ export function useGraphLayout({ setNodes, setEdges, setLoadedCount, onSelectRef
 
 
             newData.families?.forEach((fam: any) => {
-                if (fam.husband_id && fam.wife_id) {
-
-                    addEdge(`e_m_${fam.id}`, fam.husband_id, fam.wife_id, 'right-s', 'left', '#f43f5e', '6,4');
+                const fId = `fam_${fam.id}`;
+                if (fam.husband_id) {
+                    addEdge(`e_h_${fam.id}`, fam.husband_id, fId, 'right-s', 'left', '#f43f5e', '6,4');
+                }
+                if (fam.wife_id) {
+                    addEdge(`e_w_${fam.id}`, fam.wife_id, fId, 'left-s', 'right', '#f43f5e', '6,4');
                 }
             });
 
-
             newData.family_children?.forEach((fc: any) => {
-                const fam = newData.families?.find((f: any) => f.id === fc.family_id);
-                const parentId = fam?.husband_id || fam?.wife_id;
-                if (parentId) {
-                    addEdge(`e_${parentId}_${fc.child_id}`, parentId, fc.child_id, 'bottom-s', 'top', '#475569');
-                }
+                const fId = `fam_${fc.family_id}`;
+                addEdge(`e_fc_${fc.family_id}_${fc.child_id}`, fId, fc.child_id, 'bottom-s', 'top', '#475569');
             });
 
             return toAdd;

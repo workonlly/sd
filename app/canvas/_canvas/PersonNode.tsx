@@ -3,8 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { Handle, Position } from '@xyflow/react';
 
-export const CARD_WIDTH = 220;
-export const CARD_HEIGHT = 92;
+export const CARD_WIDTH = 180;
+export const CARD_HEIGHT = 190;
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -52,7 +52,7 @@ function PersonPortrait({ personId, googleurl, isFemale, avatarBgClass, colorCla
       if (!src || failed) {
         return (
        
-       <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${avatarBgClass}`}>
+       <div className={`w-14 h-14 mx-auto rounded-full flex items-center justify-center shrink-0 shadow-sm ${avatarBgClass}`}>
             
                 <AvatarSVG isFemale={isFemale} colorClass={colorClass} />
           
@@ -61,7 +61,7 @@ function PersonPortrait({ personId, googleurl, isFemale, avatarBgClass, colorCla
     }
 
     return (
-        <div className="w-10 h-10 rounded-lg shrink-0 overflow-hidden">
+        <div className="w-14 h-14 mx-auto rounded-full shrink-0 overflow-hidden shadow-sm">
             <img
                  src={src}
                  alt=""
@@ -92,12 +92,13 @@ export default function PersonNode({ id, data }: { id: string; data: any }) {
   
     const bgColor = isRoot ? 'bg-indigo-50'
          : isMale ? 'bg-blue-50'
-          : isFemale ? 'bg-rose-50'
+          
+         : isFemale ? 'bg-rose-50'
         : 'bg-slate-50';
  
     const avatarBg = isRoot ? 'bg-indigo-100'
          : isMale ? 'bg-blue-100'
-     
+      
          : isFemale ? 'bg-rose-100'
         : 'bg-slate-100';
 
@@ -147,10 +148,10 @@ export default function PersonNode({ id, data }: { id: string; data: any }) {
             ref={nodeRef}
               style={{ width: CARD_WIDTH, height: CARD_HEIGHT, willChange: 'transform, opacity' }}
               className={`
-                rounded-xl box-border flex flex-col justify-center px-3 py-2
+                rounded-xl box-border flex flex-col justify-center items-center px-3 py-4
                    opacity-0 animate-[fadeIn_0.4s_ease_forwards]
-                border-2 cursor-pointer select-none transition-all duration-200
-                    hover:scale-[1.03] hover:shadow-md
+                  border-2 cursor-pointer select-none transition-all duration-200
+                    hover:scale-[1.03] hover:shadow-md relative
                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2
                 ${bgColor} ${borderColor} ${shadowStyle} ${selectedStyle}
               `}
@@ -169,34 +170,37 @@ export default function PersonNode({ id, data }: { id: string; data: any }) {
             <Handle type="target" position={Position.Bottom} id="bottom" className="!bg-transparent !border-none" />
         
         
+
             <Handle type="source" position={Position.Bottom} id="bottom-s" className="!bg-transparent !border-none" />
          
-             <Handle type="target" position={Position.Left} id="left" className="!bg-transparent !border-none" />
+                <Handle type="target" position={Position.Left} id="left" className="!bg-transparent !border-none" />
             <Handle type="source" position={Position.Left} id="left-s" className="!bg-transparent !border-none" />
        
              <Handle type="target" position={Position.Right} id="right" className="!bg-transparent !border-none" />
             <Handle type="source" position={Position.Right} id="right-s" className="!bg-transparent !border-none" />
 
-            {rawId && (
+            {/* {rawId && (
                 <div className="text-[8px] text-slate-400 font-mono tracking-wider mb-1 leading-none">{rawId}</div>
-            )}
+            )} */}
 
-            <div className="flex items-center gap-2.5">
+            <div className="flex flex-col items-center gap-1.5 w-full mt-1">
                 <PersonPortrait 
                       personId={rawId} 
                     googleurl={googleurl}
+                  
                        isFemale={isFemale} 
                     avatarBgClass={avatarBg} 
                       colorClass={colorText} 
                 />
-                <div className="min-w-0 flex-1">
+                <div className="min-w-0 w-full text-center">
                     <div className={`font-bold text-slate-800 leading-snug overflow-hidden text-ellipsis whitespace-nowrap ${nameFontSize}`}>
+                    
                         {displayName}
                       </div>
-                        <div className="text-[9px] text-slate-500 font-medium mt-0.5 flex items-center gap-1">
-                           {birthYear && <span>b.{birthYear}</span>}
+                        <div className="text-[10px] text-slate-500 font-medium mt-0.5 flex items-center justify-center gap-1">
+                              {birthYear && <span>b.{birthYear}</span>}
                            {birthYear && (isMale || isFemale) && <span className="opacity-30">·</span>}
-                        <span>{isMale ? 'Male' : isFemale ? 'Female' : ''}</span>
+                         <span>{isMale ? 'Male' : isFemale ? 'Female' : ''}</span>
              
                       </div>
             
@@ -206,25 +210,26 @@ export default function PersonNode({ id, data }: { id: string; data: any }) {
            
 
             {expandable && (
-                 <div className="absolute -bottom-[22px] left-1/2 -translate-x-1/2 flex items-start justify-center" style={{ width: 44, height: 44 }}>
-                      <button
-                           onClick={handleExpandClick}
-                          className={`
-                               w-[22px] h-[22px] rounded-full bg-white border-2 flex items-center justify-center
-                              shadow-[0_2px_6px_rgba(0,0,0,0.15)] transition-transform hover:scale-125
-                               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400
-                             mt-0 ${borderColor} ${colorText}
-                        `}
-                          title="Expand branch"
-                          aria-label="Expand family branch"
-                     >
-                        {isExpanding
-                               ? <span className={`w-2.5 h-2.5 rounded-full border-2 border-t-transparent inline-block animate-spin ${borderColor}`} />
-                            : <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
-                             }
-       
-                     </button>
-                </div>
+                <button
+                    onClick={handleExpandClick}
+                    className={`
+                        mt-2.5 px-3 py-1.5 text-[11px] font-semibold rounded-md border-2 bg-white flex items-center justify-center gap-1.5
+                          shadow-sm transition-all hover:bg-slate-50 w-3/4 max-w-[120px]
+                        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400
+                            ${borderColor} ${colorText}
+                    `}
+                    title="Expand branch"
+                >
+                    {isExpanding ? (
+                   
+                   <span className={`w-3.5 h-3.5 rounded-full border-2 border-t-transparent inline-block animate-spin ${borderColor}`} />
+                    ) : (
+                        <>
+                            <span>Expand</span>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                        </>
+                    )}
+                </button>
             )}
         </div>
     );

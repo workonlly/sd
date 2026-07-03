@@ -150,8 +150,10 @@ function ArchivesTab({ person }: { person: PersonData }) {
                     const data = await res.json();
                     setIsAuthenticated(!!data.is_authenticated);
                 } else {
+              
                     localStorage.removeItem('token');
                     setIsAuthenticated(false);
+                    console.log("token taken oit")
                 }
             } catch (err) {
                 console.error("Token verification failed", err);

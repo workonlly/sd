@@ -9,6 +9,7 @@ import '@xyflow/react/dist/style.css';
 import '../globals.css';
 
 import PersonNode from './_canvas/PersonNode';
+import FamilyNode from './_canvas/FamilyNode';
 import Sidebar from './_canvas/Sidebar';
 
 
@@ -21,7 +22,7 @@ import { useGraphLayout } from './_canvas/useGraphLayout';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
-const nodeTypes = { personNode: PersonNode };
+const nodeTypes = { personNode: PersonNode, familyNode: FamilyNode };
 
 function GridBackground() {
     const { zoom } = useViewport();
@@ -48,6 +49,7 @@ function CanvasImpl() {
     const [loadedCount, setLoadedCount] = useState(0);
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
 
     const [expandError, setExpandError] = useState<string | null>(null);
 
@@ -80,6 +82,14 @@ function CanvasImpl() {
     }, [getNode, getViewport, setCenter]);
 
     useEffect(() => { onSelectRef.current = handleSelect; }, [handleSelect]);
+
+    const handleSearch = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!searchQuery.trim()) return;
+        
+        const term = searchQuery.toLowerCase().trim();
+        window.location.href = `/canvas?id=${encodeURIComponent(term)}`;
+    };
 
     
 
@@ -240,7 +250,17 @@ function CanvasImpl() {
                     <span className="text-sm font-semibold text-slate-700">Logout</span>
                 </button>
 
-                
+                <form onSubmit={handleSearch} className="flex items-center gap-2 bg-white rounded-xl shadow-md border border-slate-200 px-3 py-1.5 min-h-[44px]">
+                    <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                    <input 
+                        type="text" 
+                        placeholder="Search by name..." 
+                        value={searchQuery}
+                        onChange={e => setSearchQuery(e.target.value)}
+                        className="bg-transparent border-none outline-none text-sm text-slate-700 w-40 placeholder:text-slate-400"
+                    />
+                    <button type="submit" className="sr-only">Search</button>
+                </form>
             </nav>
 
             
