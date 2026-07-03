@@ -7,6 +7,7 @@ import LanguageSelector from "./language-selector";
 import Script from "next/script";
 import AmbientGlow from "./ambient-glow";
 import MobileMenu from "./mobile-menu";
+import { cookies } from "next/headers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,14 +30,24 @@ export const metadata: Metadata = {
   description: "Data, policy, and humanitarian impact portfolio",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const googtrans = cookieStore.get("googtrans")?.value;
+  let currentLang = "en";
+  if (googtrans) {
+    const parts = googtrans.split("/");
+    if (parts.length === 3) {
+      currentLang = parts[2];
+    }
+  }
+
   return (
     <html
-      lang="en"
+      lang={currentLang}
       className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} h-full antialiased`}
       suppressHydrationWarning
     >
