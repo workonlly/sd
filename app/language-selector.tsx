@@ -80,6 +80,21 @@ export default function LanguageSelector() {
   }
 
   function handleLanguageChange(lang: Language) {
+    const langMap: Record<Language, string> = {
+      en: "en",
+      bn: "bn",
+      de: "de",
+      ur: "ur",
+      ar: "ar",
+      hi: "hi",
+      fa: "fa",
+      nl: "nl",
+      fr: "fr",
+      od: "or", 
+    };
+    const selectedLangCode = langMap[lang];
+    document.documentElement.lang = selectedLangCode;
+    
     setCurrentLang(lang);
     localStorage.setItem("language", lang);
     setIsOpen(false);
@@ -119,7 +134,7 @@ export default function LanguageSelector() {
             {(Object.entries(LANGUAGES) as [Language, string][]).map(([code, name]) => (
               <button
                 key={code}
-                onClick={() => handleLanguageChange(code)}
+                onClick={() => handleLanguageChange(code as Language)}
                 className={`w-full text-start px-4 py-2.5 transition-all ${
                   currentLang === code
                     ? "bg-[var(--brand)] text-[var(--brand-contrast)]"
