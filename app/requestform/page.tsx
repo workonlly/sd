@@ -13,6 +13,16 @@ export default function ArchiveSignup() {
   const [confirmPassword,setConfirmPassword] = useState("");
   const [isPending, setIsPending] = useState(false);
 
+  // ── FEAT-007: Read shared node ID from sessionStorage ──
+  const [sharedNodeId, setSharedNodeId] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      const nodeId = sessionStorage.getItem('shared_node_id');
+      if (nodeId) setSharedNodeId(nodeId);
+    } catch {}
+  }, []);
+
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isPending) {
@@ -27,6 +37,8 @@ export default function ArchiveSignup() {
             const data = await res.json();
             localStorage.setItem('token', data.token);
             clearInterval(interval);
+            // ── FEAT-007: Clear shared node after successful registration ──
+            try { sessionStorage.removeItem('shared_node_id'); } catch {}
             router.push('/canvas');
           }
         } catch (err) {
@@ -57,7 +69,9 @@ export default function ArchiveSignup() {
                 name,
                 email,
                 phonenumber: mobile,
-                password
+                password,
+                // ── FEAT-007: Pass shared node ID to backend ──
+                node_id: sharedNodeId || undefined,
             })
         });
         
@@ -65,13 +79,34 @@ export default function ArchiveSignup() {
         
         if (!response.ok) {
             throw new Error(data.message || "Failed  sign up");
-            console.log("failed  signup")
         }
         
         // Switch to pending screen, don't clear email/password as we need them for polling
         setIsPending(true);
     } catch (err: any) {
         alert(err.message);
+    }
+  };
+
+  // ── FEAT-008: Multi-provider OAuth handler ──
+  const handleOAuthLogin = async (provider: 'google' | 'microsoft' | 'yahoo' | 'apple') => {
+    try {
+      const res = await fetch(`${APIURL}/auth/${provider}-url?redirectTo=${encodeURIComponent(window.location.origin + '/archieve_login')}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.url) {
+          // Persist shared node ID before redirect
+          if (sharedNodeId) {
+            try { sessionStorage.setItem('shared_node_id', sharedNodeId); } catch {}
+          }
+          window.location.href = data.url;
+          return;
+        }
+      }
+      throw new Error(`Failed to get ${provider} login URL`);
+    } catch (err) {
+      console.error(err);
+      alert(`Failed to initiate ${provider} login`);
     }
   };
   
@@ -86,6 +121,13 @@ export default function ArchiveSignup() {
           <div className="text-center mb-12">
             <h1 className="font-['Inter'] text-[var(--text-main)] text-xl font-black uppercase tracking-widest mb-2">Join the Archive</h1>
             <p className="text-[var(--text-muted)] text-sm font-medium tracking-tight">Request lineage member authorization</p>
+            {/* ── FEAT-007: Show binding indicator ── */}
+            {sharedNodeId && (
+              <p className="text-xs text-indigo-500 font-semibold mt-2 flex items-center justify-center gap-1">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
+                Account will be linked to a shared tree node
+              </p>
+            )}
           </div>
           
           <div className="bg-[var(--surface-elevated)] shadow-[0_10px_40px_-10px_rgba(24,32,52,0.06)] rounded-xl p-8 md:p-12 relative min-h-[400px]">
@@ -192,6 +234,51 @@ export default function ArchiveSignup() {
                   >
                     Create Account
                     <span className="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                  </button>
+                </div>
+
+                {/* ── FEAT-008: Multi-Provider OAuth Buttons ── */}
+                <div className="pt-2 space-y-2">
+                  <div className="flex items-center gap-3 my-3">
+                    <span className="flex-1 h-px bg-[var(--border)]"></span>
+                    <span className="text-[0.6rem] font-bold uppercase tracking-widest text-[var(--text-muted)]">or sign up with</span>
+                    <span className="flex-1 h-px bg-[var(--border)]"></span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleOAuthLogin('google')}
+                    className="w-full bg-[var(--surface)] text-[var(--text-main)] py-3.5 px-6 text-sm tracking-tight active:scale-[0.98] flex items-center justify-center gap-3 rounded-xl hover:bg-[var(--surface-elevated)] transition-colors border border-[var(--border-strong)]"
+                  >
+                    <img src="https://www.google.com/favicon.ico" alt="Google" className="w-4 h-4" />
+                    Google
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleOAuthLogin('microsoft')}
+                    className="w-full bg-[var(--surface)] text-[var(--text-main)] py-3.5 px-6 text-sm tracking-tight active:scale-[0.98] flex items-center justify-center gap-3 rounded-xl hover:bg-[var(--surface-elevated)] transition-colors border border-[var(--border-strong)]"
+                  >
+                    <svg className="w-4 h-4" viewBox="0 0 23 23"><rect x="1" y="1" width="10" height="10" fill="#f35325"/><rect x="12" y="1" width="10" height="10" fill="#81bc06"/><rect x="1" y="12" width="10" height="10" fill="#05a6f0"/><rect x="12" y="12" width="10" height="10" fill="#ffba08"/></svg>
+                    Microsoft
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleOAuthLogin('yahoo')}
+                    className="w-full bg-[var(--surface)] text-[var(--text-main)] py-3.5 px-6 text-sm tracking-tight active:scale-[0.98] flex items-center justify-center gap-3 rounded-xl hover:bg-[var(--surface-elevated)] transition-colors border border-[var(--border-strong)]"
+                  >
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="#6001D2"><path d="M14.258 4l-4.24 9.204L5.81 4H1l6.586 13.58L5.82 22h4.614l1.718-4.226L18.724 4zM19.5 4h4.5l-1 6h-3.5z"/></svg>
+                    Yahoo
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleOAuthLogin('apple')}
+                    className="w-full bg-[var(--surface)] text-[var(--text-main)] py-3.5 px-6 text-sm tracking-tight active:scale-[0.98] flex items-center justify-center gap-3 rounded-xl hover:bg-[var(--surface-elevated)] transition-colors border border-[var(--border-strong)]"
+                  >
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+                    Apple
                   </button>
                 </div>
               </form>

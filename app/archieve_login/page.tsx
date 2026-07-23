@@ -60,11 +60,11 @@ export default function ArchiveLogin() {
     }
   }, [router]);
 
-  const handleGoogleLogin = async () => {
+  // ── FEAT-008: Generic multi-provider OAuth handler ──
+  const handleOAuthLogin = async (provider: 'google' | 'microsoft' | 'yahoo' | 'apple') => {
     setLoading(true);
     try {
-
-      const res = await fetch(`${API_URL}/auth/google-url?redirectTo=${encodeURIComponent(window.location.origin + '/archieve_login')}`);
+      const res = await fetch(`${API_URL}/auth/${provider}-url?redirectTo=${encodeURIComponent(window.location.origin + '/archieve_login')}`);
 
       if (res.ok) {
         const data = await res.json();
@@ -72,12 +72,11 @@ export default function ArchiveLogin() {
           window.location.href = data.url;
           return;
         }
-
       }
-      throw new Error("Failed to get Google login URL");
+      throw new Error(`Failed to get ${provider} login URL`);
     } catch (err) {
       console.error(err);
-      alert("Failed to initiate Google login");
+      alert(`Failed to initiate ${provider} login`);
       setLoading(false);
     }
   };
@@ -185,13 +184,42 @@ export default function ArchiveLogin() {
 
                 <button
                   type="button"
-                  onClick={handleGoogleLogin}
+                  onClick={() => handleOAuthLogin('google')}
                   disabled={loading}
-                  className="w-full bg-[var(--surface)] text-[var(--text-main)] py-4 px-6 font-['Inter'] text-sm tracking-tight active:scale-[0.98] flex items-center justify-center gap-3 rounded-xl hover:bg-[var(--surface-elevated)] transition-colors border border-[var(--border-strong)]"
+                  className="w-full bg-[var(--surface)] text-[var(--text-main)] py-3.5 px-6 font-['Inter'] text-sm tracking-tight active:scale-[0.98] flex items-center justify-center gap-3 rounded-xl hover:bg-[var(--surface-elevated)] transition-colors border border-[var(--border-strong)]"
                 >
-
                   <img src="https://www.google.com/favicon.ico" alt="Google" className="w-4 h-4" />
-                  {loading ? 'Redirecting...' : ' Google'}
+                  {loading ? 'Redirecting...' : 'Google'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleOAuthLogin('microsoft')}
+                  disabled={loading}
+                  className="w-full bg-[var(--surface)] text-[var(--text-main)] py-3.5 px-6 font-['Inter'] text-sm tracking-tight active:scale-[0.98] flex items-center justify-center gap-3 rounded-xl hover:bg-[var(--surface-elevated)] transition-colors border border-[var(--border-strong)]"
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 23 23"><rect x="1" y="1" width="10" height="10" fill="#f35325"/><rect x="12" y="1" width="10" height="10" fill="#81bc06"/><rect x="1" y="12" width="10" height="10" fill="#05a6f0"/><rect x="12" y="12" width="10" height="10" fill="#ffba08"/></svg>
+                  {loading ? 'Redirecting...' : 'Microsoft'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleOAuthLogin('yahoo')}
+                  disabled={loading}
+                  className="w-full bg-[var(--surface)] text-[var(--text-main)] py-3.5 px-6 font-['Inter'] text-sm tracking-tight active:scale-[0.98] flex items-center justify-center gap-3 rounded-xl hover:bg-[var(--surface-elevated)] transition-colors border border-[var(--border-strong)]"
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="#6001D2"><path d="M14.258 4l-4.24 9.204L5.81 4H1l6.586 13.58L5.82 22h4.614l1.718-4.226L18.724 4zM19.5 4h4.5l-1 6h-3.5z"/></svg>
+                  {loading ? 'Redirecting...' : 'Yahoo'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleOAuthLogin('apple')}
+                  disabled={loading}
+                  className="w-full bg-[var(--surface)] text-[var(--text-main)] py-3.5 px-6 font-['Inter'] text-sm tracking-tight active:scale-[0.98] flex items-center justify-center gap-3 rounded-xl hover:bg-[var(--surface-elevated)] transition-colors border border-[var(--border-strong)]"
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+                  {loading ? 'Redirecting...' : 'Apple'}
                 </button>
               </div>
             </form>

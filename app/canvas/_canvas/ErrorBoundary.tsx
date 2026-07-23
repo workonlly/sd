@@ -1,4 +1,5 @@
 import React from 'react';
+import * as Sentry from '@sentry/nextjs';
 
 interface State { hasError: boolean; message: string; }
 
@@ -17,6 +18,8 @@ export default class ErrorBoundary extends React.Component<
 
     componentDidCatch(error: Error, info: React.ErrorInfo) {
          console.error('Canvas error boundary caught:', error, info);
+         // FEAT-019: Report to Sentry silently
+         Sentry.captureException(error, { extra: { componentStack: info.componentStack } });
     }
 
     render() {

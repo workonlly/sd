@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Handle, Position } from '@xyflow/react';
+import { formatBirthYear } from '../../lib/dates';
 
 export const CARD_WIDTH = 180;
 export const CARD_HEIGHT = 190;
@@ -138,7 +139,10 @@ export default function PersonNode({ id, data }: { id: string; data: any }) {
         }
     };
 
-    const handleClick = () => {
+    // ── FEAT-006: Explicit click scope — stop propagation to prevent
+    //    ReactFlow pane click from competing with sidebar triggers ──
+    const handleClick = (e: React.MouseEvent | React.KeyboardEvent) => {
+          e.stopPropagation();
           if (typeof navigator.vibrate === 'function') navigator.vibrate(8);
           onSelect?.(id);
     };
@@ -161,7 +165,7 @@ export default function PersonNode({ id, data }: { id: string; data: any }) {
           
                aria-pressed={isSelected}
               onClick={handleClick}
-            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleClick(); }}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleClick(e); }}
         
         >
             <Handle type="target" position={Position.Top} id="top" className="!bg-transparent !border-none" />

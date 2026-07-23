@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useCallback, useRef } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 import {ReactFlow,MiniMap,Background,BackgroundVariant,useNodesState,useEdgesState,useReactFlow,useViewport,ReactFlowProvider,type Node,type Edge,Controls} from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
@@ -12,13 +13,13 @@ import PersonNode from './_canvas/PersonNode';
 import FamilyNode from './_canvas/FamilyNode';
 import Sidebar from './_canvas/Sidebar';
 
-
 import NetworkToast from './_canvas/NetworkToast';
-
 import { CanvasLoadingSkeleton } from './_canvas/CanvasSkeleton';
-
 import ErrorBoundary from './_canvas/ErrorBoundary';
 import { useGraphLayout } from './_canvas/useGraphLayout';
+import { useCanvasStore } from './_canvas/useCanvasStore';
+import { parseCanvasResponse, parseAuthResponse } from '../lib/schemas';
+import CanvasToolbar from './_canvas/CanvasToolbar';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -47,11 +48,18 @@ function CanvasImpl() {
     const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
     const [loadedCount, setLoadedCount] = useState(0);
-    const [selectedId, setSelectedId] = useState<string | null>(null);
-    const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [searchQuery, setSearchQuery] = useState('');
 
-    const [expandError, setExpandError] = useState<string | null>(null);
+    // ── FEAT-014: Zustand global state ──
+    const selectedId = useCanvasStore(s => s.selectedId);
+    const sidebarOpen = useCanvasStore(s => s.sidebarOpen);
+    const searchQuery = useCanvasStore(s => s.searchQuery);
+    const expandError = useCanvasStore(s => s.expandError);
+    const setSelectedId = useCanvasStore(s => s.setSelectedId);
+    const setSidebarOpen = useCanvasStore(s => s.setSidebarOpen);
+    const setSearchQuery = useCanvasStore(s => s.setSearchQuery);
+    const setExpandError = useCanvasStore(s => s.setExpandError);
+    const selectNode = useCanvasStore(s => s.selectNode);
+    const clearSelection = useCanvasStore(s => s.clearSelection);
 
     const sidebarTriggerRef = useRef<HTMLElement | null>(null);
     const onSelectRef = useRef<((id: string) => void) | undefined>(undefined);
@@ -63,10 +71,45 @@ function CanvasImpl() {
         onSelectRef,
     });
 
-    const handleSelect = useCallback((nodeId: string) => {
-        setSelectedId(nodeId);
-        setSidebarOpen(true);
+    // ── FEAT-011: react-query auth check ──
+    useQuery({
+        queryKey: ['auth-check'],
+        queryFn: async () => {
+            const token = localStorage.getItem('token');
+            if (!token) throw new Error('no-token');
 
+            const res = await fetch(`${API_URL}/`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (!res.ok) {
+                localStorage.removeItem('token');
+                throw new Error('auth-failed');
+            }
+
+            const data = await res.json();
+            const parsed = parseAuthResponse(data);
+            if (!parsed.is_authenticated) throw new Error('not-authenticated');
+            return parsed;
+        },
+        retry: false,
+        meta: {
+            onError: () => {
+                router.push('/canvas/guest');
+            }
+        },
+    });
+
+    // redirect on auth failure
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            router.push('/canvas/guest');
+        }
+    }, [router]);
+
+    const handleSelect = useCallback((nodeId: string) => {
+        selectNode(nodeId);
 
          const url = new URL(window.location.href);
           url.searchParams.set('id', nodeId);
@@ -79,7 +122,7 @@ function CanvasImpl() {
             const cy = node.position.y + ((node.height as number) || 92) / 2;
             setCenter(cx, cy, { duration: 450, zoom: Math.max(zoom, 0.75) });
         }, 60);
-    }, [getNode, getViewport, setCenter]);
+    }, [getNode, getViewport, setCenter, selectNode]);
 
     useEffect(() => { onSelectRef.current = handleSelect; }, [handleSelect]);
 
@@ -91,10 +134,6 @@ function CanvasImpl() {
         window.location.href = `/canvas?id=${encodeURIComponent(term)}`;
     };
 
-    
-
-
-    
     useEffect(() => {
         setNodes(curr => curr.map(n => ({
             ...n,
@@ -110,8 +149,7 @@ function CanvasImpl() {
             const nodeId = e.state?.nodeId;
             if (nodeId) {
               
-                setSelectedId(nodeId);
-                   setSidebarOpen(true);
+                selectNode(nodeId);
                 setTimeout(() => {
                     const node = getNode(nodeId);
                     if (node) {
@@ -122,65 +160,48 @@ function CanvasImpl() {
                     }
                 }, 60);
             } else {
-                setSidebarOpen(false);
+                clearSelection();
             }
         };
         window.addEventListener('popstate', handlePopState);
         return () => window.removeEventListener('popstate', handlePopState);
-    }, [getNode, getViewport, setCenter]);
+    }, [getNode, getViewport, setCenter, selectNode, clearSelection]);
 
- 
-      
-    useEffect(() => {
-        async function authetication() {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                router.push('/canvas/guest');
-                return;
-            }
-
-            try {
-                const res = await fetch(`${API_URL}/`, {
-                    headers: {
-                 
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                
-                if (res.ok) {
-                    const data = await res.json();
-                    if (!data.is_authenticated) {
-                        router.push('/canvas/guest');
-                    }
-                } else {
-                    
-                    localStorage.removeItem('token');
-                    router.push('/canvas/guest');
-                }
-            } catch (error) {
-                console.error("Authentication check failed", error);
-            }
-        }
-        authetication();
-    }, [])
-    
+    // ── FEAT-011 + FEAT-012: react-query + Zod validated data fetch ──
     useEffect(() => {
         (async () => {
             try {
                 const params = new URLSearchParams(window.location.search);
                 let startId = params.get('id') || null;
+                const isShareLink = params.get('share') === '1';
                 const qs = startId ? `?person=${startId}&type=initial` : `?type=initial`;
 
                 const res = await fetch(`${API_URL}/canvas/data${qs}`);
                
                 if (!res.ok) throw new Error('Failed to fetch initial tree data');
-                const data = await res.json();
+                const raw = await res.json();
+
+                // ── FEAT-012: Zod validation ──
+                const data = parseCanvasResponse(raw);
 
                 mergeDataIntoGraph(data, null);
 
-                
+                // ── FEAT-007: Auto-pan for share links ──
                 if (startId && data.individuals?.find((i: any) => i.id === startId)) {
-                    setTimeout(() => handleSelect(startId!), 200);
+                    setTimeout(() => {
+                        handleSelect(startId!);
+                        // Tighter zoom for share links
+                        if (isShareLink) {
+                            setTimeout(() => {
+                                const node = getNode(startId!);
+                                if (node) {
+                                    const cx = node.position.x + ((node.width as number) || 220) / 2;
+                                    const cy = node.position.y + ((node.height as number) || 92) / 2;
+                                    setCenter(cx, cy, { duration: 600, zoom: 0.95 });
+                                }
+                            }, 500);
+                        }
+                    }, 200);
                 }
             } catch (err) {
                 console.error(err);
@@ -188,7 +209,7 @@ function CanvasImpl() {
                 setLoading(false);
             }
         })();
-    }, [mergeDataIntoGraph, handleSelect]);
+    }, [mergeDataIntoGraph, handleSelect, getNode, setCenter]);
 
     const selectedPerson = selectedId ? nodes.find(n => n.id === selectedId)?.data as any : null;
 
@@ -221,6 +242,8 @@ function CanvasImpl() {
                           maxZoom={2.5}
                           proOptions={{ hideAttribution: true }}
                         className="canvas-no-print"
+                        // ── FEAT-006: Clicking the pane closes sidebar ──
+                        onPaneClick={() => { if (sidebarOpen) clearSelection(); }}
                     >
 
                         <GridBackground />
@@ -239,6 +262,9 @@ function CanvasImpl() {
 
             
             <nav className="absolute top-30 left-6 z-[9999] flex items-center gap-2 canvas-nav canvas-no-print">
+
+            {/* ── FEAT-021: Canvas Toolbar ── */}
+            <CanvasToolbar loadedCount={loadedCount} />
                 <button
                     onClick={() => { localStorage.removeItem('token'); router.push('/'); }}
                     className="flex items-center gap-2 px-4 py-2.5 bg-white rounded-xl shadow-md hover:shadow-lg border border-slate-200 transition-all group min-h-[44px]"
@@ -267,7 +293,7 @@ function CanvasImpl() {
             {sidebarOpen && selectedPerson && (
                  <Sidebar
                      person={selectedPerson}
-                     onClose={() => { setSidebarOpen(false); }}
+                     onClose={() => { clearSelection(); }}
                    triggerRef={sidebarTriggerRef}
                 />
             )}

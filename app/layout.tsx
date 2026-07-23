@@ -8,6 +8,7 @@ import Script from "next/script";
 import AmbientGlow from "./ambient-glow";
 import MobileMenu from "./mobile-menu";
 import { cookies } from "next/headers";
+import QueryProvider from "./lib/QueryProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -112,7 +113,7 @@ export default async function RootLayout({
 
 
         <main className="flex-grow flex flex-col relative z-10">
-          {children}
+          <QueryProvider>{children}</QueryProvider>
         </main>
 
 
@@ -141,7 +142,6 @@ export default async function RootLayout({
                   try {
                     new google.translate.TranslateElement({
                       pageLanguage: 'en',
-                      includedLanguages: 'en,bn,de,ur,ar,hi,fa,nl,fr,or',
                       layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
                       autoDisplay: false
                     }, 'google_translate_element');

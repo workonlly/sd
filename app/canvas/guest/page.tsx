@@ -10,14 +10,12 @@ import '../../globals.css';
 import PersonNode from '../_canvas/PersonNode';
 import Sidebar from '../_canvas/Sidebar';
 
-
 import NetworkToast from '../_canvas/NetworkToast';
-
 import { CanvasLoadingSkeleton } from '../_canvas/CanvasSkeleton';
-
 import ErrorBoundary from '../_canvas/ErrorBoundary';
-
 import { useGraphLayout } from '../_canvas/useGraphLayout';
+import { useCanvasStore } from '../_canvas/useCanvasStore';
+import { parseCanvasResponse } from '../../lib/schemas';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -50,15 +48,15 @@ function CanvasImpl() {
        
     const[loadedCount,setLoadedCount]=useState(0);
          const [startPersonName, setStartPersonName] = useState('');
-      
-         const [selectedId, setSelectedId] = useState<string | null>(null);
-   
-         const [sidebarOpen, setSidebarOpen] = useState(false);
-   
 
-    const [expandError, setExpandError] = useState<string | null>(null);
-   
-   
+    // ── FEAT-014: Zustand global state ──
+    const selectedId = useCanvasStore(s => s.selectedId);
+    const sidebarOpen = useCanvasStore(s => s.sidebarOpen);
+    const expandError = useCanvasStore(s => s.expandError);
+    const selectNode = useCanvasStore(s => s.selectNode);
+    const clearSelection = useCanvasStore(s => s.clearSelection);
+    const setExpandError = useCanvasStore(s => s.setExpandError);
+
     const sidebarTriggerRef = useRef<HTMLElement | null>(null);
     const onSelectRef = useRef<((id: string) => void) | undefined>(undefined);
 
@@ -72,21 +70,15 @@ function CanvasImpl() {
     });
 
     const handleSelect = useCallback((nodeId: string) => {
-          setSelectedId(nodeId); 
-
-          setSidebarOpen(true);
-
-
-
+          selectNode(nodeId);
 
           const url = new URL(window.location.href);
             url.searchParams.set('id', nodeId);
            window.history.pushState({ nodeId }, '', url.toString());
 
-
         setTimeout(() => {
              const node = getNode(nodeId);
-      
+       
              if (!node) return;
                 const { zoom } = getViewport();
        
@@ -95,7 +87,7 @@ function CanvasImpl() {
              const cy = node.position.y + ((node.height as number) || 92) / 2;
                 setCenter(cx, cy, { duration: 450, zoom: Math.max(zoom, 0.75) });
         }, 60);
-    }, [getNode, getViewport, setCenter]);
+    }, [getNode, getViewport, setCenter, selectNode]);
 
       useEffect(() => { onSelectRef.current = handleSelect; }, [handleSelect]);
 
@@ -107,20 +99,23 @@ function CanvasImpl() {
         })));
     }, [selectedId, setNodes]);
 
-    
-    
+    // ── FEAT-011 + FEAT-012: react-query + Zod validated data fetch ──
     useEffect(() => {
         (async () => {
             try {
                 const params = new URLSearchParams(window.location.search);
                 let startId = params.get('id') || null;
+                const isShareLink = params.get('share') === '1';
                 const qs = startId ? `?person=${startId}&type=initial` : `?type=initial`;
 
                 const res = await fetch(`${API_URL}/canvas/data${qs}`);
               
                 if (!res.ok) throw new Error('Failed to fetch initial tree data');
             
-                const data = await res.json();
+                const raw = await res.json();
+
+                // ── FEAT-012: Zod validation ──
+                const data = parseCanvasResponse(raw);
 
                 const rootInd = data.individuals?.find((i: any) => i.id === (startId || data.startPersonId));
                 if (rootInd) {
@@ -140,9 +135,23 @@ function CanvasImpl() {
 
                 mergeDataIntoGraph(data, null);
 
-               
+                // ── FEAT-007: Auto-pan for share links ──
                 if (startId && data.individuals?.find((i: any) => i.id === startId)) {
-                    setTimeout(() => handleSelect(startId!), 200);
+                    setTimeout(() => {
+                        handleSelect(startId!);
+                        if (isShareLink) {
+                            // ── FEAT-007: Persist node ID for registration binding ──
+                            try { sessionStorage.setItem('shared_node_id', startId!); } catch {}
+                            setTimeout(() => {
+                                const node = getNode(startId!);
+                                if (node) {
+                                    const cx = node.position.x + ((node.width as number) || 220) / 2;
+                                    const cy = node.position.y + ((node.height as number) || 92) / 2;
+                                    setCenter(cx, cy, { duration: 600, zoom: 0.95 });
+                                }
+                            }, 500);
+                        }
+                    }, 200);
                 }
             } catch (err) {
                 console.error(err);
@@ -187,6 +196,8 @@ function CanvasImpl() {
                        
                             proOptions={{ hideAttribution: true }}
                         className="canvas-no-print"
+                        // ── FEAT-006: Clicking the pane closes sidebar ──
+                        onPaneClick={() => { if (sidebarOpen) clearSelection(); }}
                     >
                      
                         <GridBackground />
@@ -226,7 +237,7 @@ function CanvasImpl() {
                
                <Sidebar
                      person={selectedPerson}
-                     onClose={() => { setSidebarOpen(false); }}
+                     onClose={() => { clearSelection(); }}
                      triggerRef={sidebarTriggerRef}
                 />
             )}
