@@ -22,16 +22,16 @@ export default function CanvasToolbar({ loadedCount }: CanvasToolbarProps) {
     };
 
     return (
-        <div className="absolute top-30 right-6 z-[9998] flex items-center gap-2 canvas-no-print">
+        <div className="absolute top-[calc(100%+1rem)] left-0 flex items-center gap-2 canvas-no-print">
             {/* Person count badge */}
-            {loadedCount !== undefined && loadedCount > 0 && (
+            {/* {loadedCount !== undefined && loadedCount > 0 && (
                 <div className="flex items-center gap-1.5 px-3 py-2 bg-white rounded-xl shadow-md border border-slate-200 text-xs font-semibold text-slate-600">
                     <svg className="w-3.5 h-3.5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                     <span>{loadedCount}</span>
                 </div>
-            )}
+            )} */}
 
             {/* Download PDF / Print button */}
             <button

@@ -42,7 +42,7 @@ function GridBackground() {
 
 function CanvasImpl() {
     const router = useRouter();
-    const { fitView, getNode, getViewport, setCenter } = useReactFlow();
+    const { fitView, getNode, getNodes, getEdges, getViewport, setCenter } = useReactFlow();
 
     const [loading, setLoading] = useState(true);
     const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
@@ -67,6 +67,8 @@ function CanvasImpl() {
     const { mergeDataIntoGraph } = useGraphLayout({
         setNodes: setNodes as any,
         setEdges: setEdges as any,
+        getNodes,
+        getEdges,
         setLoadedCount: setLoadedCount as any,
         onSelectRef,
     });

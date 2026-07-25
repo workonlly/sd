@@ -1,282 +1,266 @@
 'use client';
 
-import { useEffect, useRef, useCallback, useState } from 'react';
-import { useCallback as useStableCallback } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import type { Node, Edge } from '@xyflow/react';
+import ELK from 'elkjs/lib/elk.bundled.js';
+
+const elk = new ELK();
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
+const CARD_WIDTH = 180;
+const CARD_HEIGHT = 190;
+const FAMILY_NODE_SIZE = 16;
+
 interface UseGraphLayoutOptions {
-    setNodes: (updater: (nodes: Node[]) => Node[]) => void;
-    setEdges: (updater: (edges: Edge[]) => Edge[]) => void;
+    setNodes: (updater: Node[] | ((nodes: Node[]) => Node[])) => void;
+    setEdges: (updater: Edge[] | ((edges: Edge[]) => Edge[])) => void;
+    getNodes: () => Node[];
+    getEdges: () => Edge[];
     setLoadedCount: (updater: (n: number) => number) => void;
     onSelectRef: React.MutableRefObject<((id: string) => void) | undefined>;
 }
 
-export function useGraphLayout({ setNodes, setEdges, setLoadedCount, onSelectRef }: UseGraphLayoutOptions) {
+export function useGraphLayout({ setNodes, setEdges, getNodes, getEdges, setLoadedCount, onSelectRef }: UseGraphLayoutOptions) {
     const fetchingIds = useRef<Set<string>>(new Set());
     const handleLazyLoadRef = useRef<((nodeId: string) => Promise<void>) | undefined>(undefined);
-    const placedPositions = useRef<Map<string, { x: number; y: number }>>(new Map());
 
-    const mergeDataIntoGraph = useCallback((newData: any, anchorId: string | null) => {
-        setNodes(currNodes => {
-            const existingById = new Map(currNodes.map(n => [n.id, n]));
-            const newInds: any[] = newData.individuals || [];
+    const mergeDataIntoGraph = useCallback(async (newData: any, anchorId: string | null) => {
+        const currNodes = getNodes();
+        const currEdges = getEdges();
 
+        const existingById = new Map(currNodes.map(n => [n.id, n]));
+        const edgeMap = new Set(currEdges.map(e => e.id));
 
-            const newFamilies: any[] = newData.families || [];
-            const newFC: any[] = newData.family_children || [];
+        const newInds: any[] = newData.individuals || [];
+        const newFamilies: any[] = newData.families || [];
+        // const newFC: any[] = newData.family_children || [];
 
-            const childrenByFamily = new Map<string, string[]>();
-            const familyByChild = new Map<string, string[]>();
+        const brandNewIndIds = new Set(newInds.map((i: any) => i.id).filter((id: string) => !existingById.has(id)));
 
-            newFC.forEach((fc: any) => {
-                if (!childrenByFamily.has(fc.family_id)) childrenByFamily.set(fc.family_id, []);
-                childrenByFamily.get(fc.family_id)!.push(fc.child_id);
+        const buildNodeData = (ind: any, nodeId: string, isRootNode: boolean) => ({
+            ...ind,
+            label: `${ind.given_names || ''} ${ind.surname || ''}`.trim() || 'Unknown',
+            rawId: ind.raw_metadata?.GEDCOM_ID || nodeId,
+            gender: ind.raw_metadata?.SEX || 'U',
+            birthYear: ind.birth_year_calculated || null,
+            expandable: nodeId !== anchorId,
+            isRoot: isRootNode,
+            onExpand: (id: string) => handleLazyLoadRef.current?.(id),
+            onSelect: (id: string) => onSelectRef.current?.(id),
+        });
 
-                if (!familyByChild.has(fc.child_id)) familyByChild.set(fc.child_id, []);
-                familyByChild.get(fc.child_id)!.push(fc.family_id);
+        // Update existing nodes with new data if needed
+        const resultNodes: Node[] = currNodes.map(n => {
+            const ind = newInds.find((i: any) => i.id === n.id);
+            if (!ind) return n;
+            return {
+                ...n,
+                data: buildNodeData(ind, n.id, Boolean(n.data.isRoot)),
+            };
+        });
+
+        // Add new person nodes
+        brandNewIndIds.forEach(id => {
+            const ind = newInds.find((i: any) => i.id === id)!;
+            resultNodes.push({
+                id,
+                type: 'personNode',
+                position: { x: 0, y: 0 }, // Elk will calculate this
+                data: buildNodeData(ind, id, id === newData.startPersonId && !anchorId),
             });
+        });
 
-
-            const familiesBySpouse = new Map<string, any[]>();
-            newFamilies.forEach((f: any) => {
-
-                [f.husband_id, f.wife_id].forEach(sid => {
-                    if (sid) {
-                        if (!familiesBySpouse.has(sid)) familiesBySpouse.set(sid, []);
-                        familiesBySpouse.get(sid)!.push(f);
-                    }
+        // Add new family nodes
+        const familyNodesToAdd: Node[] = [];
+        newFamilies.forEach((fam: any) => {
+            const fId = `fam_${fam.id}`;
+            if (!existingById.has(fId)) {
+                familyNodesToAdd.push({
+                    id: fId,
+                    type: 'familyNode',
+                    position: { x: 0, y: 0 }, // Elk will calculate this
+                    data: {},
+                    draggable: true,
                 });
+            }
+        });
+        resultNodes.push(...familyNodesToAdd);
+
+        const resultEdges: Edge[] = [...currEdges];
+
+        const addEdge = (eId: string, src: string, tgt: string, sHandle: string, tHandle: string, color: string, dash?: string) => {
+            if (edgeMap.has(eId)) return;
+            resultEdges.push({
+                id: eId,
+                source: src,
+                target: tgt,
+                sourceHandle: sHandle,
+                targetHandle: tHandle,
+                type: 'step',
+                style: {
+                    stroke: color,
+                    strokeWidth: dash ? 1.8 : 2,
+                    strokeDasharray: dash,
+                },
             });
+            edgeMap.add(eId);
+        };
 
-            const brandNewIndIds = new Set(newInds.map((i: any) => i.id).filter((id: string) => !existingById.has(id)));
+        newData.families?.forEach((fam: any) => {
+            const fId = `fam_${fam.id}`;
+            if (fam.husband_id) {
+                addEdge(`e_h_${fam.id}`, fam.husband_id, fId, 'right-s', 'left', '#f43f5e', '6,4');
+            }
+            if (fam.wife_id) {
+                addEdge(`e_w_${fam.id}`, fam.wife_id, fId, 'left-s', 'right', '#f43f5e', '6,4');
+            }
+        });
 
-            const anchorPos = anchorId
-                ? (placedPositions.current.get(anchorId) || existingById.get(anchorId)?.position || { x: 0, y: 0 })
-                : { x: 0, y: 0 };
+        newData.family_children?.forEach((fc: any) => {
+            const fId = `fam_${fc.family_id}`;
+            addEdge(`e_fc_${fc.family_id}_${fc.child_id}`, fId, fc.child_id, 'bottom-s', 'top', '#475569');
+        });
 
+        // --- Calculate Depths via BFS for ELK partitioning ---
+        const depthMap = new Map<string, number>();
+        currNodes.forEach(n => {
+            if (n.data && typeof n.data.depth === 'number') {
+                depthMap.set(n.id, n.data.depth);
+            }
+        });
 
-            const levels = new Map<string, number>();
-            const startId = anchorId || newData.startPersonId || newInds[0]?.id;
+        const adj = new Map<string, { neighbor: string, diff: number }[]>();
+        const addAdj = (u: string, v: string, diff: number) => {
+            if (!adj.has(u)) adj.set(u, []);
+            adj.get(u)!.push({ neighbor: v, diff });
+        };
 
+        resultEdges.forEach(e => {
+            if (e.id.startsWith('e_h_') || e.id.startsWith('e_w_')) {
+                // spouse to family: same generation
+                addAdj(e.source, e.target, 0);
+                addAdj(e.target, e.source, 0);
+            } else if (e.id.startsWith('e_fc_')) {
+                // family to child: child is next generation
+                addAdj(e.source, e.target, 1);
+                addAdj(e.target, e.source, -1);
+            }
+        });
+
+        const queue: string[] = [];
+        if (depthMap.size === 0) {
+            const startId = newData.startPersonId || (resultNodes.length > 0 ? resultNodes[0].id : null);
             if (startId) {
-                const queue: { id: string; level: number }[] = [{ id: startId, level: 0 }];
-                levels.set(startId, 0);
-                let head = 0;
-                while (head < queue.length) {
-                    const { id, level } = queue[head++];
+                depthMap.set(startId, 0);
+                queue.push(startId);
+            }
+        } else {
+            for (const id of depthMap.keys()) {
+                queue.push(id);
+            }
+        }
 
-
-                    (familyByChild.get(id) || []).forEach((fId: string) => {
-
-                        const fam = newFamilies.find((f: any) => f.id === fId);
-                        if (fam) {
-
-                            [fam.husband_id, fam.wife_id].forEach((pid: string) => {
-                                if (pid && !levels.has(pid)) {
-                                    levels.set(pid, level - 1);
-
-
-                                    queue.push({ id: pid, level: level - 1 });
-
-
-                                }
-
-                            });
-                        }
-                    });
-
-                    (familiesBySpouse.get(id) || []).forEach((fam: any) => {
-                        const partnerId = fam.husband_id === id ? fam.wife_id : fam.husband_id;
-                        if (partnerId && !levels.has(partnerId)) {
-                            levels.set(partnerId, level);
-                            queue.push({ id: partnerId, level });
-                        }
-                        (childrenByFamily.get(fam.id) || []).forEach((cId: string) => {
-                            if (!levels.has(cId)) {
-                                levels.set(cId, level + 1);
-                                queue.push({ id: cId, level: level + 1 });
-                            }
-                        });
-                    });
+        let qIdx = 0;
+        while (qIdx < queue.length) {
+            const u = queue[qIdx++];
+            const currDepth = depthMap.get(u)!;
+            const neighbors = adj.get(u) || [];
+            for (const edge of neighbors) {
+                if (!depthMap.has(edge.neighbor)) {
+                    depthMap.set(edge.neighbor, currDepth + edge.diff);
+                    queue.push(edge.neighbor);
                 }
             }
+        }
 
-            const newLevelGroups = new Map<number, string[]>();
-            brandNewIndIds.forEach(id => {
-                const lvl = levels.get(id) ?? 0;
-                if (!newLevelGroups.has(lvl)) newLevelGroups.set(lvl, []);
-
-                newLevelGroups.get(lvl)!.push(id);
-            });
-
-            const occupiedXByY = new Map<number, number[]>();
-
-            placedPositions.current.forEach(pos => {
-                const yBucket = Math.round(pos.y / 350);
-                if (!occupiedXByY.has(yBucket)) occupiedXByY.set(yBucket, []);
-                occupiedXByY.get(yBucket)!.push(pos.x);
-            });
-
-            const findFreeX = (yBucket: number, startX: number): number => {
-                const taken = new Set(occupiedXByY.get(yBucket) || []);
-                let x = startX;
-
-                while ([...taken].some(tx => Math.abs(tx - x) < 400)) x += 400;
-                if (!occupiedXByY.has(yBucket)) occupiedXByY.set(yBucket, []);
-                occupiedXByY.get(yBucket)!.push(x);
-                return x;
-            };
-
-            const sortedLevels = Array.from(newLevelGroups.keys()).sort((a, b) => a - b);
-            sortedLevels.forEach(lvl => {
-                const nodesHere = newLevelGroups.get(lvl)!;
-                const absY = anchorPos.y + lvl * 350;
-                const yBucket = Math.round(absY / 350);
-                const placed = new Set<string>();
-                let currentX = anchorPos.x - (nodesHere.length * 400) / 2;
-
-                const placeNode = (id: string) => {
-                    if (placed.has(id) || placedPositions.current.has(id)) return;
-                    const freeX = findFreeX(yBucket, currentX);
-                    placedPositions.current.set(id, { x: freeX, y: absY });
-                    placed.add(id);
-                    currentX = freeX + 400;
-                };
-
-
-                newFamilies.forEach((fam: any) => {
-                    const hId = fam.husband_id;
-
-
-                    const wId = fam.wife_id;
-                    if (hId && wId && nodesHere.includes(hId) && nodesHere.includes(wId)) {
-                        placeNode(hId);
-                        placeNode(wId);
-                    }
-                });
-
-                nodesHere.filter(id => !placed.has(id)).forEach(placeNode);
-            });
-
-            const buildNodeData = (ind: any, nodeId: string, isRootNode: boolean) => ({
-                ...ind,
-                label: `${ind.given_names || ''} ${ind.surname || ''}`.trim() || 'Unknown',
-                rawId: ind.raw_metadata?.GEDCOM_ID || nodeId,
-                gender: ind.raw_metadata?.SEX || 'U',
-                birthYear: ind.birth_year_calculated || null,
-                expandable: nodeId !== anchorId,
-                isRoot: isRootNode,
-                onExpand: (id: string) => handleLazyLoadRef.current?.(id),
-                onSelect: (id: string) => onSelectRef.current?.(id),
-            });
-
-            const resultNodes: Node[] = currNodes.map(n => {
-                const ind = newInds.find((i: any) => i.id === n.id);
-                if (!ind) return n;
-                return {
-                    ...n,
-
-                    data: buildNodeData(ind, n.id, Boolean(n.data.isRoot)),
-                };
-            });
-
-
-
-            brandNewIndIds.forEach(id => {
-                const ind = newInds.find((i: any) => i.id === id)!;
-                resultNodes.push({
-                    id,
-                    type: 'personNode',
-                    position: placedPositions.current.get(id) || { x: 0, y: 0 },
-                    data: buildNodeData(ind, id, id === newData.startPersonId && !anchorId),
-                });
-            });
-
-            const familyNodesToAdd: Node[] = [];
-            newFamilies.forEach((fam: any) => {
-                const fId = `fam_${fam.id}`;
-                if (!existingById.has(fId)) {
-                    let fx = 0;
-                    let fy = 0;
-                    const hId = fam.husband_id;
-                    const wId = fam.wife_id;
-                    const hPos = placedPositions.current.get(hId) || existingById.get(hId)?.position;
-                    const wPos = placedPositions.current.get(wId) || existingById.get(wId)?.position;
-                    
-                    if (hPos && wPos) {
-                        fx = (hPos.x + wPos.x) / 2 + 90; // center between parents
-                        fy = hPos.y + 130;
-                    } else if (hPos) {
-                        fx = hPos.x + 90;
-                        fy = hPos.y + 240;
-                    } else if (wPos) {
-                        fx = wPos.x + 90;
-                        fy = wPos.y + 240;
-                    }
-                    
-                    familyNodesToAdd.push({
-                        id: fId,
-                        type: 'familyNode',
-                        position: { x: fx, y: fy },
-                        data: {},
-                        draggable: true
-                    });
+        for (let i = 0; i < resultNodes.length; i++) {
+            const n = resultNodes[i];
+            const d = depthMap.get(n.id) || 0;
+            resultNodes[i] = {
+                ...n,
+                data: {
+                    ...(n.data || {}),
+                    depth: d
                 }
-            });
-            resultNodes.push(...familyNodesToAdd);
+            };
+        }
 
-            setLoadedCount(() => resultNodes.filter(n => n.type === 'personNode').length);
-            return resultNodes;
+        // Run ELK layout
+        const elkNodes = resultNodes.map(n => ({
+            id: n.id,
+            width: n.type === 'familyNode' ? FAMILY_NODE_SIZE : CARD_WIDTH,
+            height: n.type === 'familyNode' ? FAMILY_NODE_SIZE : CARD_HEIGHT,
+            layoutOptions: {
+                'partitioning.partition': String(n.data?.depth || 0),
+            }
+        }));
+
+        const elkEdges = resultEdges.map(e => {
+            const isSpouseEdge = e.id.startsWith('e_h_') || e.id.startsWith('e_w_');
+            return {
+                id: e.id,
+                sources: [e.source],
+                targets: [e.target],
+                layoutOptions: isSpouseEdge
+                    ? {
+                          'elk.layered.priority.straightness': '100',
+                          'elk.priority': '100',
+                      }
+                    : {
+                          'elk.layered.priority.straightness': '1',
+                          'elk.priority': '1',
+                      }
+            };
         });
 
-        setEdges(currEdges => {
-            const edgeMap = new Set(currEdges.map(e => e.id));
-            const toAdd: Edge[] = [...currEdges];
+        const graph = {
+            id: 'root',
+            layoutOptions: {
+                'elk.algorithm': 'layered',
+                'elk.direction': 'DOWN',
+                'elk.edgeRouting': 'ORTHOGONAL',
+                'elk.layered.edgeRouting': 'ORTHOGONAL',
+                'elk.layered.mergeEdges': 'true',
+                'elk.layered.spacing.nodeNodeBetweenLayers': '100',
+                'elk.layered.spacing.nodeNode': '50',
+                'elk.partitioning.activate': 'true',
+                'elk.layered.nodePlacement.strategy': 'NETWORK_SIMPLEX',
+            },
+            children: elkNodes,
+            edges: elkEdges,
+        };
 
-            const addEdge = (eId: string, src: string, tgt: string, sHandle: string, tHandle: string, color: string, dash?: string) => {
-                if (edgeMap.has(eId)) return;
-
-
-                toAdd.push({
-                    id: eId,
-                    source: src,
-                    target: tgt,
-                    sourceHandle: sHandle,
-                    targetHandle: tHandle,
-                    type: 'step',
-                    style: {
-                        stroke: color,
-                        strokeWidth: dash ? 1.8 : 2,
-                        strokeDasharray: dash,
-                    },
-                });
-                edgeMap.add(eId);
-            };
-
-
-            newData.families?.forEach((fam: any) => {
-                const fId = `fam_${fam.id}`;
-                if (fam.husband_id) {
-                    addEdge(`e_h_${fam.id}`, fam.husband_id, fId, 'right-s', 'left', '#f43f5e', '6,4');
+        try {
+            const layoutedGraph = await elk.layout(graph);
+            
+            const layoutedNodes = resultNodes.map(node => {
+                const layoutNode = layoutedGraph.children?.find((n: any) => n.id === node.id);
+                if (layoutNode) {
+                    return {
+                        ...node,
+                        position: {
+                            x: layoutNode.x || 0,
+                            y: layoutNode.y || 0,
+                        },
+                    };
                 }
-                if (fam.wife_id) {
-                    addEdge(`e_w_${fam.id}`, fam.wife_id, fId, 'left-s', 'right', '#f43f5e', '6,4');
-                }
+                return node;
             });
 
-            newData.family_children?.forEach((fc: any) => {
-                const fId = `fam_${fc.family_id}`;
-                addEdge(`e_fc_${fc.family_id}_${fc.child_id}`, fId, fc.child_id, 'bottom-s', 'top', '#475569');
-            });
+            setNodes(layoutedNodes);
+            setEdges(resultEdges);
+            setLoadedCount(() => layoutedNodes.filter(n => n.type === 'personNode').length);
 
-            return toAdd;
-        });
-    }, [setNodes, setEdges, setLoadedCount, onSelectRef]);
+        } catch (error) {
+            console.error("ELK Layout error:", error);
+            setNodes(resultNodes);
+            setEdges(resultEdges);
+        }
+
+    }, [getNodes, getEdges, setNodes, setEdges, setLoadedCount, onSelectRef]);
 
     const handleLazyLoad = useCallback(async (nodeId: string) => {
-
         if (fetchingIds.current.has(nodeId)) return;
         fetchingIds.current.add(nodeId);
 
@@ -287,7 +271,7 @@ export function useGraphLayout({ setNodes, setEdges, setLoadedCount, onSelectRef
                 throw new Error(`Fetch failed ${res.status}: ${body}`);
             }
             const data = await res.json();
-            mergeDataIntoGraph(data, nodeId);
+            await mergeDataIntoGraph(data, nodeId);
 
         } catch (err) {
             console.error('Lazy load failed:', err);
@@ -297,10 +281,9 @@ export function useGraphLayout({ setNodes, setEdges, setLoadedCount, onSelectRef
         }
     }, [mergeDataIntoGraph]);
 
-
     useEffect(() => {
         handleLazyLoadRef.current = handleLazyLoad;
     }, [handleLazyLoad]);
 
-    return { mergeDataIntoGraph, handleLazyLoad, placedPositions };
+    return { mergeDataIntoGraph, handleLazyLoad };
 }
