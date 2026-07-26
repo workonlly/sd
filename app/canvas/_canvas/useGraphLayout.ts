@@ -97,7 +97,7 @@ export function useGraphLayout({ setNodes, setEdges, getNodes, getEdges, setLoad
                 target: tgt,
                 sourceHandle: sHandle,
                 targetHandle: tHandle,
-                type: 'step',
+                type: eId.startsWith('e_h_') || eId.startsWith('e_w_') ? 'straight' : 'step',
                 style: {
                     stroke: color,
                     strokeWidth: dash ? 1.8 : 2,
@@ -186,22 +186,106 @@ export function useGraphLayout({ setNodes, setEdges, getNodes, getEdges, setLoad
             };
         }
 
-        // Run ELK layout
-        const elkNodes = resultNodes.map(n => ({
-            id: n.id,
-            width: n.type === 'familyNode' ? FAMILY_NODE_SIZE : CARD_WIDTH,
-            height: n.type === 'familyNode' ? FAMILY_NODE_SIZE : CARD_HEIGHT,
-            layoutOptions: {
-                'partitioning.partition': String(n.data?.depth || 0),
+        // --- Sort Nodes to Group Spouses (Force Model Order) ---
+        const spouseAdj = new Map<string, string[]>();
+        const addSpouseAdj = (u: string, v: string) => {
+            if (!spouseAdj.has(u)) spouseAdj.set(u, []);
+            spouseAdj.get(u)!.push(v);
+        };
+        resultEdges.forEach(e => {
+            if (e.id.startsWith('e_h_') || e.id.startsWith('e_w_')) {
+                addSpouseAdj(e.source, e.target);
+                addSpouseAdj(e.target, e.source);
             }
-        }));
+        });
+
+        const sortedResultNodes: Node[] = [];
+        const visitedNodes = new Set<string>();
+
+        const nodesByPartition = new Map<number, Node[]>();
+        for (const n of resultNodes) {
+            const d = (n.data?.depth as number) || 0;
+            if (!nodesByPartition.has(d)) nodesByPartition.set(d, []);
+            nodesByPartition.get(d)!.push(n);
+        }
+
+        const partitionKeys = Array.from(nodesByPartition.keys()).sort((a, b) => a - b);
+        
+        for (const p of partitionKeys) {
+            const nodesInP = nodesByPartition.get(p)!;
+            const nodesInPMap = new Map(nodesInP.map(n => [n.id, n]));
+            
+            const dfs = (id: string) => {
+                if (visitedNodes.has(id)) return;
+                visitedNodes.add(id);
+                if (nodesInPMap.has(id)) {
+                    sortedResultNodes.push(nodesInPMap.get(id)!);
+                }
+                const neighbors = spouseAdj.get(id) || [];
+                for (const neighbor of neighbors) {
+                    if (nodesInPMap.has(neighbor)) {
+                        dfs(neighbor);
+                    }
+                }
+            };
+
+            // 1. Start with Person nodes that have only 1 spouse connection (end of chain)
+            for (const n of nodesInP) {
+                if (n.type === 'personNode' && (spouseAdj.get(n.id)?.length === 1)) {
+                    dfs(n.id);
+                }
+            }
+            // 2. Any remaining persons (e.g. no spouses, or circular/complex)
+            for (const n of nodesInP) {
+                if (n.type === 'personNode') dfs(n.id);
+            }
+            // 3. Any remaining families
+            for (const n of nodesInP) {
+                dfs(n.id);
+            }
+        }
+        
+        // Modify resultNodes in place so subsequent code uses the sorted array
+        resultNodes.length = 0;
+        resultNodes.push(...sortedResultNodes);
+
+        // Run ELK layout
+        const elkNodes = resultNodes.map(n => {
+            const width = n.type === 'familyNode' ? FAMILY_NODE_SIZE : CARD_WIDTH;
+            const height = n.type === 'familyNode' ? FAMILY_NODE_SIZE : CARD_HEIGHT;
+            return {
+                id: n.id,
+                width,
+                height,
+                layoutOptions: {
+                    'partitioning.partition': String(n.data?.depth || 0),
+                },
+                ports: [
+                    { id: `${n.id}-left`, properties: { 'port.side': 'WEST' }, width: 0, height: 0, x: 0, y: height / 2 },
+                    { id: `${n.id}-right`, properties: { 'port.side': 'EAST' }, width: 0, height: 0, x: width, y: height / 2 },
+                    { id: `${n.id}-top`, properties: { 'port.side': 'NORTH' }, width: 0, height: 0, x: width / 2, y: 0 },
+                    { id: `${n.id}-bottom`, properties: { 'port.side': 'SOUTH' }, width: 0, height: 0, x: width / 2, y: height }
+                ]
+            };
+        });
 
         const elkEdges = resultEdges.map(e => {
             const isSpouseEdge = e.id.startsWith('e_h_') || e.id.startsWith('e_w_');
+            
+            let sPort = `${e.source}-bottom`;
+            if (e.sourceHandle?.includes('right')) sPort = `${e.source}-right`;
+            else if (e.sourceHandle?.includes('left')) sPort = `${e.source}-left`;
+            else if (e.sourceHandle?.includes('top')) sPort = `${e.source}-top`;
+            
+            let tPort = `${e.target}-top`;
+            if (e.targetHandle?.includes('right')) tPort = `${e.target}-right`;
+            else if (e.targetHandle?.includes('left')) tPort = `${e.target}-left`;
+            else if (e.targetHandle?.includes('bottom')) tPort = `${e.target}-bottom`;
+
             return {
                 id: e.id,
-                sources: [e.source],
-                targets: [e.target],
+                sources: [sPort],
+                targets: [tPort],
                 layoutOptions: isSpouseEdge
                     ? {
                           'elk.layered.priority.straightness': '100',
@@ -219,13 +303,15 @@ export function useGraphLayout({ setNodes, setEdges, getNodes, getEdges, setLoad
             layoutOptions: {
                 'elk.algorithm': 'layered',
                 'elk.direction': 'DOWN',
+                'elk.alignment': 'CENTER',
                 'elk.edgeRouting': 'ORTHOGONAL',
                 'elk.layered.edgeRouting': 'ORTHOGONAL',
                 'elk.layered.mergeEdges': 'true',
                 'elk.layered.spacing.nodeNodeBetweenLayers': '100',
-                'elk.layered.spacing.nodeNode': '50',
+                'elk.layered.spacing.nodeNode': '100',
                 'elk.partitioning.activate': 'true',
                 'elk.layered.nodePlacement.strategy': 'NETWORK_SIMPLEX',
+                'elk.layered.crossingMinimization.forceNodeModelOrder': 'true',
             },
             children: elkNodes,
             edges: elkEdges,
@@ -237,11 +323,48 @@ export function useGraphLayout({ setNodes, setEdges, getNodes, getEdges, setLoad
             const layoutedNodes = resultNodes.map(node => {
                 const layoutNode = layoutedGraph.children?.find((n: any) => n.id === node.id);
                 if (layoutNode) {
+                    let finalY = layoutNode.y || 0;
+                    let finalX = layoutNode.x || 0;
+                    
+                    if (node.type === 'familyNode') {
+                        const hEdge = resultEdges.find(e => e.target === node.id && e.id.startsWith('e_h_'));
+                        const wEdge = resultEdges.find(e => e.target === node.id && e.id.startsWith('e_w_'));
+                        
+                        if (hEdge && wEdge) {
+                            const hNode = layoutedGraph.children?.find((n: any) => n.id === hEdge.source);
+                            const wNode = layoutedGraph.children?.find((n: any) => n.id === wEdge.source);
+                            
+                            if (hNode && wNode) {
+                                // Perfectly horizontally center between them
+                                const minX = Math.min(hNode.x || 0, wNode.x || 0);
+                                const maxX = Math.max(hNode.x || 0, wNode.x || 0);
+                                finalX = ((minX + CARD_WIDTH) + maxX) / 2 - (FAMILY_NODE_SIZE / 2);
+                                
+                                // Vertically center too
+                                finalY = (hNode.y || 0) + (CARD_HEIGHT / 2) - (FAMILY_NODE_SIZE / 2);
+                            }
+                        } else {
+                            // Fallback if only one spouse exists
+                            const spouseEdge = hEdge || wEdge;
+                            if (spouseEdge) {
+                                const spouseLayout = layoutedGraph.children?.find((n: any) => n.id === spouseEdge.source);
+                                if (spouseLayout) {
+                                    finalY = (spouseLayout.y || 0) + (CARD_HEIGHT / 2) - (FAMILY_NODE_SIZE / 2);
+                                    if (spouseEdge.id.startsWith('e_h_')) {
+                                        finalX = (spouseLayout.x || 0) + CARD_WIDTH + 50;
+                                    } else {
+                                        finalX = (spouseLayout.x || 0) - FAMILY_NODE_SIZE - 50;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     return {
                         ...node,
                         position: {
-                            x: layoutNode.x || 0,
-                            y: layoutNode.y || 0,
+                            x: finalX,
+                            y: finalY,
                         },
                     };
                 }

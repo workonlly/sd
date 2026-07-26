@@ -100,10 +100,10 @@ export default async function RootLayout({
               >
 
                 <span className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></span>
-                <span className="relative z-10">Archive Login</span>
-                <span className="material-symbols-outlined text-[1.1rem] relative z-10 group-hover:translate-x-1 transition-transform duration-300">
-                  chevron_right
-                </span>
+                <span className="relative z-10 whitespace-nowrap truncate">Archive Login</span>
+                <svg className="w-[1.1rem] h-[1.1rem] relative z-10 group-hover:translate-x-1 transition-transform duration-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
               </Link>
             </div>
 
